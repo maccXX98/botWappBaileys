@@ -14,6 +14,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import urlToTemplateAndMedia from "./templatesUrls.mjs";
 import { city } from "./templates.mjs";
+import { actions } from './actions.mjs';
 
 const { json, urlencoded } = bodyParser;
 const app = express();
@@ -29,25 +30,6 @@ let sock;
 let qrDinamic;
 let soket;
 let count = 0;
-
-const actions = {
-  [DisconnectReason.badSession]: () => {
-    console.log(`Bad Session File, Delete session_auth_info and Scan Again`);
-    sock.logout();
-  },
-  [DisconnectReason.connectionClosed]: reconnect,
-  [DisconnectReason.connectionLost]: reconnect,
-  [DisconnectReason.connectionReplaced]: () => {
-    console.log("Conexión con otra sesión abierta, cierre la sesión actual");
-    sock.logout();
-  },
-  [DisconnectReason.loggedOut]: () => {
-    console.log(`Dispositivo cerrado, eliminar session_auth_info y escanear`);
-    sock.logout();
-  },
-  [DisconnectReason.restartRequired]: reconnect,
-  [DisconnectReason.timedOut]: reconnect,
-};
 
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState("session_auth_info");
@@ -91,8 +73,8 @@ async function handleMessageUpsert({ messages, type }) {
           `mensaje enviado ${++count} ${new Date().toLocaleTimeString()}`
         );
         console.log(clientNumber);
-        //const image = readFileSync(templateAndMedia.media);
-        const image = templateAndMedia.media;
+        const image = readFileSync(templateAndMedia.media);
+        //const image = templateAndMedia.media;
         await sock.sendMessage(clientNumber, {
           image: image,
           caption: templateAndMedia.template,
