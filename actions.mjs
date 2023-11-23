@@ -1,3 +1,5 @@
+import { DisconnectReason } from "@whiskeysockets/baileys";
+
 export const actions = {
   [DisconnectReason.badSession]: () => {
     console.log(`Bad Session File, Delete session_auth_info and Scan Again`);
@@ -16,3 +18,8 @@ export const actions = {
   [DisconnectReason.restartRequired]: reconnect,
   [DisconnectReason.timedOut]: reconnect,
 };
+
+function reconnect() {
+  console.log("Reconectando...");
+  connectToWhatsApp();
+}

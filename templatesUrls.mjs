@@ -1,4 +1,12 @@
-import { zl02pro, lenovok3, comboPROQT82, rechargeBattery, deskLamp, proyector, galaxyLamp } from "./templates.mjs";
+import {
+  zl02pro,
+  lenovok3,
+  comboPROQT82,
+  rechargeBattery,
+  deskLamp,
+  proyector,
+  galaxyLamp,
+} from "./templates.mjs";
 
 const urlToTemplateAndMedia = {
   "https://fb.me/3baAXHaZo": {
@@ -40,7 +48,8 @@ const urlToTemplateAndMedia = {
   //test:
   "https://fb.me/RGueptM7": {
     template: galaxyLamp,
-    media: {url: "https://definicion.de/wp-content/uploads/2011/01/casa-2.jpg"},
+    media: "./images/galaxyLamp.jpg",
+    //media: {url: "https://definicion.de/wp-content/uploads/2011/01/casa-2.jpg"},
   },
 };
 

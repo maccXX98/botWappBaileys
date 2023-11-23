@@ -1,36 +1,28 @@
-import {
-  makeWASocket,
-  DisconnectReason,
-  useMultiFileAuthState,
-} from "@whiskeysockets/baileys";
-
+import { makeWASocket, useMultiFileAuthState } from "@whiskeysockets/baileys";
 import { readFileSync } from "fs";
-import log from "pino";
 import { Boom } from "@hapi/boom";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import log from "pino";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { createServer } from "http";
-import { Server } from "socket.io";
 import urlToTemplateAndMedia from "./templatesUrls.mjs";
 import { city } from "./templates.mjs";
-import { actions } from './actions.mjs';
+import { actions } from "./actions.mjs";
 
-const { json, urlencoded } = bodyParser;
 const app = express();
 const server = createServer(app);
 const io = new Server(server);
 const port = process.env.PORT || 8000;
 
 app.use(cors());
-app.use(json());
-app.use(urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 let sock;
 let qrDinamic;
-let soket;
-let count = 0;
-
+let count;
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState("session_auth_info");
 
@@ -92,13 +84,7 @@ async function handleMessageUpsert({ messages, type }) {
   }
 }
 
-function reconnect() {
-  console.log("Reconectando...");
-  connectToWhatsApp();
-}
-
 io.on("connection", async (socket) => {
-  soket = socket;
   if (sock?.user) {
     updateQR("connected");
   } else if (qrDinamic) {

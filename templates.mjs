@@ -35,7 +35,6 @@ export const lenovok3 = `*Nos preguntaste por el parlante Lenovo RGB*
   *Combo de 2 unidades por Bs. 199*`;
 export const comboPROQT82 = `*Combo Smartwatch Deportivo ⌚+ Audífonos inalámbricos Lenovo Premium*
   -------------------------------
-  
   *SmartWatch Sumergible*
   Pantalla de 1.39 pulgadas de alta resolución
   Contesta y realiza llamadas
