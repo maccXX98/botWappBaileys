@@ -22,7 +22,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 let sock;
 let qrDinamic;
-let count;
+let count = 0;
+
 async function connectToWhatsApp() {
   const { state, saveCreds } = await useMultiFileAuthState("session_auth_info");
 
