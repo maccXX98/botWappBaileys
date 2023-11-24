@@ -1,4 +1,4 @@
-export const zl02pro = `Nos preguntaste por el SMARTWATCH ZL02 PRO⌚
+const zl02pro = `Nos preguntaste por el SMARTWATCH ZL02 PRO⌚
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● Recibe notificaciones de WhatsApp, Face y otros
@@ -18,7 +18,8 @@ export const zl02pro = `Nos preguntaste por el SMARTWATCH ZL02 PRO⌚
   Disponibilidad 🎨
   ◉ Color: Negro, Azul, Rosado, Beige
   ◉ *Precio: Bs. 250*`;
-export const lenovok3 = `*Nos preguntaste por el parlante Lenovo RGB*
+
+const lenovok3 = `*Nos preguntaste por el parlante Lenovo RGB*
   ──────────────
   *Principales características*
   - Diseño portátil para llevar a todas partes
@@ -33,7 +34,8 @@ export const lenovok3 = `*Nos preguntaste por el parlante Lenovo RGB*
   ──────────────
   *Precio Bs.130 c/u*
   *Combo de 2 unidades por Bs. 199*`;
-export const comboPROQT82 = `*Combo Smartwatch Deportivo ⌚+ Audífonos inalámbricos Lenovo Premium*
+
+const comboPROQT82 = `*Combo Smartwatch Deportivo ⌚+ Audífonos inalámbricos Lenovo Premium*
   -------------------------------
   *SmartWatch Sumergible*
   Pantalla de 1.39 pulgadas de alta resolución
@@ -49,7 +51,8 @@ export const comboPROQT82 = `*Combo Smartwatch Deportivo ⌚+ Audífonos inalám
   -----------------------------------
   P̶r̶e̶c̶i̶o̶ ̶p̶o̶r̶ ̶s̶e̶p̶a̶r̶a̶d̶o̶ ̶B̶s̶.̶ ̶4̶1̶0̶
   Precio en combo Bs. 329`;
-export const rechargeBattery = `*Nos preguntaste las Pilas Recargables por USB*
+
+const rechargeBattery = `*Nos preguntaste las Pilas Recargables por USB*
   ──────────────────
   *Principales características* 🧏🏽
   ·٠•● Pack de 4 pilas tamaño AA (1700mAh)
@@ -67,7 +70,8 @@ export const rechargeBattery = `*Nos preguntaste las Pilas Recargables por USB*
   ◉ Pack de 2 unidades pilas AA y 2 unidades pilas AAA con cable USB-C de 2 puertos
   ◉ *~Precio Bs. 150~
   ◉ *Precio de oferta cualquiera de las presentaciones: Bs. 135*`;
-export const deskLamp = `Nos preguntaste por la Lampara de Escritorio 💡
+
+const deskLamp = `Nos preguntaste por la Lampara de Escritorio 💡
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● 5 niveles de temperatura (blanco a cálido)
@@ -83,7 +87,8 @@ export const deskLamp = `Nos preguntaste por la Lampara de Escritorio 💡
   Disponibilidad 🎨
   ◉ color: Plomo
   ◉ *Precio: Bs. 180* `;
-export const proyector = `Nos preguntaste por el Proyector Portátil📽️
+
+const proyector = `Nos preguntaste por el Proyector Portátil📽️
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● Ligera y compacta
@@ -99,7 +104,8 @@ export const proyector = `Nos preguntaste por el Proyector Portátil📽️
   ·٠•● Permite la conexión de Chromecast, Tv Stick, etc.
   ──────────────────
   ◉ *Precio: Bs. 300* `;
-export const galaxyLamp = `Nos preguntaste por el Galaxy Lamp🌌
+
+const galaxyLamp = `Nos preguntaste por el Galaxy Lamp🌌
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● Tecnología LED avanzada
@@ -114,4 +120,34 @@ export const galaxyLamp = `Nos preguntaste por el Galaxy Lamp🌌
   ──────────────────
   ◉ *~Precio Bs. 180~
   *Precio de oferta: Bs. 159* `;
-export const city = `¿Desde qué ciudad nos escribe? 🇧🇴😁`;
+
+const bell = `*Preguntaste por el timbre inalámbrico!*
+___________________________
+*Caracteristicas Principales*
+* Instalación rápida en 1 minuto
+* Alcance de 300 metros (sin interferencias)
+* Sin cables ni instalación eléctrica
+* Diseño elegante y moderno
+___________________________
+*Caracteristicas Técnicas*
+* Incluye 1 timbre que funciona con una pila de reloj y las bocinas se conectan directamente a la corriente electrica
+* 58 melodías y ajuste de volumen
+* Resistente al agua y al polvo
+___________________________
+Presentaciones:
+1 timbre con 1 bocina *Precio Bs. 159*
+1 timbre con 2 bocinas *Precio Bs. 220*`;
+
+const city = `¿Desde qué ciudad nos escribe? 🇧🇴😁`;
+
+module.exports = {
+  zl02pro,
+  lenovok3,
+  comboPROQT82,
+  rechargeBattery,
+  deskLamp,
+  proyector,
+  galaxyLamp,
+  city,
+  bell,
+};
