@@ -138,8 +138,6 @@ Presentaciones:
 1 timbre con 1 bocina *Precio Bs. 159*
 1 timbre con 2 bocinas *Precio Bs. 220*`;
 
-const city = `¿Desde qué ciudad nos escribe? 🇧🇴😁`;
-
 module.exports = {
   zl02pro,
   lenovok3,
@@ -148,6 +146,5 @@ module.exports = {
   deskLamp,
   proyector,
   galaxyLamp,
-  city,
   bell,
 };

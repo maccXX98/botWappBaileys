@@ -10,7 +10,8 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const urlToTemplateAndMedia = require("./templatesUrls.js");
-const { city } = require("./templates.js");
+const { city } = require("./cityTemplates.js");
+const citiesToTemplateAndMedia = require("./cityTemplatesUrls.js");
 
 const app = express();
 const server = createServer(app);
@@ -50,7 +51,9 @@ const handleConnectionUpdate = (update) => {
     const reason = new Boom(lastDisconnect.error).output.statusCode;
     switch (reason) {
       case DisconnectReason.badSession:
-        console.log("Bad Session File, Delete session_auth_info and Scan Again");
+        console.log(
+          "Bad Session File, Delete session_auth_info and Scan Again"
+        );
         sock.logout();
         break;
       case DisconnectReason.connectionClosed:
@@ -60,11 +63,15 @@ const handleConnectionUpdate = (update) => {
         reconnect();
         break;
       case DisconnectReason.connectionReplaced:
-        console.log("Conexión con otra sesión abierta, cierre la sesión actual");
+        console.log(
+          "Conexión con otra sesión abierta, cierre la sesión actual"
+        );
         sock.logout();
         break;
       case DisconnectReason.loggedOut:
-        console.log("Dispositivo cerrado, eliminar session_auth_info y escanear");
+        console.log(
+          "Dispositivo cerrado, eliminar session_auth_info y escanear"
+        );
         sock.logout();
         break;
     }
@@ -83,28 +90,36 @@ const handleMessageUpsert = async ({ messages, type }) => {
         messages?.[0]?.message?.extendedTextMessage?.text || "";
       const clientNumber = messages[0]?.key?.remoteJid;
 
-      let templateAndMedia;
-      for (const url of Object.keys(urlToTemplateAndMedia)) {
-        if (messageBody.includes(url) || sourceUrl.includes(url)) {
-          templateAndMedia = urlToTemplateAndMedia[url];
-          break;
+      const findTemplateAndMedia = (map, text) => {
+        for (const key of Object.keys(map)) {
+          if (text.includes(key)) {
+            return map[key];
+          }
         }
-      }
+      };
 
-      if (templateAndMedia) {
-        console.log(`message send ${++count} ${new Date().toLocaleTimeString()}`);
+      let templateAndMedia = findTemplateAndMedia(urlToTemplateAndMedia, messageBody + sourceUrl);
+      let cityTemplateAndMedia = findTemplateAndMedia(citiesToTemplateAndMedia, messageBody.toLowerCase());
+
+      const sendMessage = async (templateAndMedia, logMessage) => {
+        console.log(`${logMessage} ${++count} ${new Date().toLocaleTimeString()}`);
         console.log(clientNumber);
         const image = templateAndMedia.media;
         await sock.sendMessage(clientNumber, {
           image: image,
           caption: templateAndMedia.template,
         });
+      };
 
+      if (templateAndMedia) {
+        await sendMessage(templateAndMedia, 'product send');
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, {
             text: city,
           });
         }, 2000);
+      } else if (cityTemplateAndMedia) {
+        await sendMessage(cityTemplateAndMedia, 'city send');
       }
     }
   } catch (error) {
