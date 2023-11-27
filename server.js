@@ -11,8 +11,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
-const urlToTemplateAndMedia = require("./templatesUrls.js");
-const { city } = require("./templates.js");
+const urlToTemplateAndMedia =
+  require("./templatesUrls.js").urlToTemplateAndMedia;
+const urls = require("./templatesUrls.js").urls;
+const { city } = require("./productTemplates.js");
 
 const app = express();
 const server = createServer(app);
@@ -102,18 +104,18 @@ const handleMessageUpsert = async ({ messages, type }) => {
         messages?.[0]?.message?.extendedTextMessage?.text || "";
       const clientNumber = messages[0]?.key?.remoteJid;
 
-      const findTemplateAndMedia = (map, text) => {
-        for (const key of Object.keys(map)) {
-          if (text.includes(key)) {
-            return map[key];
+      const findProduct = (map, text) => {
+        for (const [product, urls] of Object.entries(map)) {
+          for (const url of urls) {
+            if (text.includes(url)) {
+              return product;
+            }
           }
         }
       };
 
-      let templateAndMedia = findTemplateAndMedia(
-        urlToTemplateAndMedia,
-        messageBody + sourceUrl
-      );
+      let product = findProduct(urls, sourceUrl + messageBody);
+      let templateAndMedia = urlToTemplateAndMedia[product];
 
       if (templateAndMedia) {
         await sendMessage(clientNumber, templateAndMedia, "product send");

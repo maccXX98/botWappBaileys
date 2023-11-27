@@ -1,1 +1,2 @@
+//glitch
  rm -r session_auth_info
