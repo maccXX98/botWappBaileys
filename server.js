@@ -10,7 +10,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const urlToTemplateAndMedia = require("./templatesUrls.js");
-const city = require("./templates.js");
+const { city } = require("./templates.js");
 
 const app = express();
 const server = createServer(app);
