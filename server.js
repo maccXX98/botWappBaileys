@@ -9,6 +9,8 @@ const log = require("pino");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const fs = require("fs");
+const path = require("path");
 const urlToTemplateAndMedia = require("./templatesUrls.js");
 const { city } = require("./templates.js");
 
@@ -21,7 +23,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 let sock;
-let qrDinamic;
 let count = 0;
 
 const reconnect = () => {
@@ -30,30 +31,46 @@ const reconnect = () => {
 };
 
 const connectToWhatsApp = async () => {
-  const { state, saveCreds } = await useMultiFileAuthState("session_auth_info");
-
-  sock = makeWASocket({
-    printQRInTerminal: true,
-    auth: state,
+  const { state: e, saveCreds: s } = await useMultiFileAuthState(
+    "session_auth_info"
+  );
+  (sock = makeWASocket({
+    printQRInTerminal: !0,
+    auth: e,
     logger: log({ level: "silent" }),
-  });
-
-  sock.ev.on("connection.update", handleConnectionUpdate);
-  sock.ev.on("messages.upsert", handleMessageUpsert);
-  sock.ev.on("creds.update", saveCreds);
+  })),
+    sock.ev.on("connection.update", handleConnectionUpdate),
+    sock.ev.on("messages.upsert", handleMessageUpsert),
+    sock.ev.on("creds.update", s);
 };
 
-const handleConnectionUpdate = (update) => {
-  const { connection, lastDisconnect, qr } = update;
-  qrDinamic = qr;
+const deleteFolder = async (folderPath) => {
+  if (fs.existsSync(folderPath)) {
+    fs.rmSync(folderPath, { recursive: true, force: true });
+    console.log(`Carpeta session_auth_info eliminada`);
+  } else {
+    console.log(`La carpeta session_auth_info no existe`);
+  }
+};
+
+const handleDisconnection = async (message) => {
+  console.log(message);
+  await deleteFolder(path.join(__dirname, "session_auth_info"));
+  if (sock && sock.state === "open") {
+    sock.logout();
+  }
+  connectToWhatsApp().catch((err) => console.log("unexpected error: " + err));
+};
+
+const handleConnectionUpdate = async (update) => {
+  const { connection, lastDisconnect } = update;
   if (connection === "close") {
     const reason = new Boom(lastDisconnect.error).output.statusCode;
     switch (reason) {
       case DisconnectReason.badSession:
-        console.log(
+        await handleDisconnection(
           "Bad Session File, Delete session_auth_info and Scan Again"
         );
-        sock.logout();
         break;
       case DisconnectReason.connectionClosed:
       case DisconnectReason.connectionLost:
@@ -62,14 +79,12 @@ const handleConnectionUpdate = (update) => {
         reconnect();
         break;
       case DisconnectReason.connectionReplaced:
-        console.log(
+        await handleDisconnection(
           "Connecting to another open session, close the current session"
         );
-        sock.logout();
         break;
       case DisconnectReason.loggedOut:
-        console.log("Disconnected device, delete session_auth_info and scan");
-        sock.logout();
+        await handleDisconnection("Disconnected device");
         break;
     }
   } else if (connection === "open") {
@@ -100,20 +115,8 @@ const handleMessageUpsert = async ({ messages, type }) => {
         messageBody + sourceUrl
       );
 
-      const sendMessage = async (templateAndMedia, logMessage) => {
-        console.log(
-          `${logMessage} ${++count} ${new Date().toLocaleTimeString()}`
-        );
-        console.log(clientNumber);
-        const image = templateAndMedia.media;
-        await sock.sendMessage(clientNumber, {
-          image: image,
-          caption: templateAndMedia.template,
-        });
-      };
-
       if (templateAndMedia) {
-        await sendMessage(templateAndMedia, "product send");
+        await sendMessage(clientNumber, templateAndMedia, "product send");
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, {
             text: city,
@@ -124,6 +127,22 @@ const handleMessageUpsert = async ({ messages, type }) => {
   } catch (error) {
     console.log("error ", error);
   }
+};
+
+const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
+  console.log(
+    `${logMessage} ${++count} ${new Date(
+      new Date().getTime() +
+        new Date().getTimezoneOffset() * 60000 -
+        4 * 60 * 60000
+    ).toLocaleTimeString()}`
+  );
+  console.log(clientNumber.replace("@s.whatsapp.net", ""));
+  const image = templateAndMedia.media;
+  await sock.sendMessage(clientNumber, {
+    image: image,
+    caption: templateAndMedia.template,
+  });
 };
 
 connectToWhatsApp().catch((err) => console.log("unexpected error: " + err));
