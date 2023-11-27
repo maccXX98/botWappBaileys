@@ -61,11 +61,16 @@ const urlToTemplateAndMedia = {
       url: "https://www.novex.com.bo/wp-content/uploads/2023/11/timbre.png",
     },
   },
-  //test:
-  "https://fb.me/RGueptM7": {
-    template: templates.galaxyLamp,
+  "https://fb.me/36rvkZY0y": {
+    template: templates.triangulePanels5,
     media: {
-      url: "https://www.novex.com.bo/wp-content/uploads/2023/11/WhatsApp-Image-2023-11-24-at-12.17.35-4.jpeg",
+      url: "https://www.novex.com.bo/wp-content/uploads/2023/11/triangulePanels5.png",
+    },
+  },
+  "https://fb.me/8B2fl6g3Q": {
+    template: templates.alarmClock,
+    media: {
+      url: "https://www.novex.com.bo/wp-content/uploads/2023/11/alarmClock.jpeg",
     },
   },
 };

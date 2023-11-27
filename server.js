@@ -10,8 +10,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const urlToTemplateAndMedia = require("./templatesUrls.js");
-const { city } = require("./cityTemplates.js");
-const citiesToTemplateAndMedia = require("./cityTemplatesUrls.js");
+const city = require("./templates.js");
 
 const app = express();
 const server = createServer(app);
@@ -26,7 +25,7 @@ let qrDinamic;
 let count = 0;
 
 const reconnect = () => {
-  console.log("Conectando...");
+  console.log("Connecting...");
   connectToWhatsApp();
 };
 
@@ -64,14 +63,12 @@ const handleConnectionUpdate = (update) => {
         break;
       case DisconnectReason.connectionReplaced:
         console.log(
-          "Conexión con otra sesión abierta, cierre la sesión actual"
+          "Connecting to another open session, close the current session"
         );
         sock.logout();
         break;
       case DisconnectReason.loggedOut:
-        console.log(
-          "Dispositivo cerrado, eliminar session_auth_info y escanear"
-        );
+        console.log("Disconnected device, delete session_auth_info and scan");
         sock.logout();
         break;
     }
@@ -98,11 +95,15 @@ const handleMessageUpsert = async ({ messages, type }) => {
         }
       };
 
-      let templateAndMedia = findTemplateAndMedia(urlToTemplateAndMedia, messageBody + sourceUrl);
-      let cityTemplateAndMedia = findTemplateAndMedia(citiesToTemplateAndMedia, messageBody.toLowerCase());
+      let templateAndMedia = findTemplateAndMedia(
+        urlToTemplateAndMedia,
+        messageBody + sourceUrl
+      );
 
       const sendMessage = async (templateAndMedia, logMessage) => {
-        console.log(`${logMessage} ${++count} ${new Date().toLocaleTimeString()}`);
+        console.log(
+          `${logMessage} ${++count} ${new Date().toLocaleTimeString()}`
+        );
         console.log(clientNumber);
         const image = templateAndMedia.media;
         await sock.sendMessage(clientNumber, {
@@ -112,14 +113,12 @@ const handleMessageUpsert = async ({ messages, type }) => {
       };
 
       if (templateAndMedia) {
-        await sendMessage(templateAndMedia, 'product send');
+        await sendMessage(templateAndMedia, "product send");
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, {
             text: city,
           });
         }, 2000);
-      } else if (cityTemplateAndMedia) {
-        await sendMessage(cityTemplateAndMedia, 'city send');
       }
     }
   } catch (error) {

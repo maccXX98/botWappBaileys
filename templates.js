@@ -1,3 +1,5 @@
+const city = `¿Desde qué ciudad nos escribe? 🇧🇴😁`;
+
 const zl02pro = `Nos preguntaste por el SMARTWATCH ZL02 PRO⌚
   ──────────────────
   Principales características 🧏🏽‍♂️
@@ -138,7 +140,40 @@ Presentaciones:
 1 timbre con 1 bocina *Precio Bs. 159*
 1 timbre con 2 bocinas *Precio Bs. 220*`;
 
+const triangulePanels5 = `Nos preguntaste por los Paneles Acústicos de 5cm! 🔇🎵
+──────────────────
+Principales características 🧏🏽‍♂️
+·٠•● Ayudan con el Eco y Reducción de ruido exterior/interior (2dB+-1)
+·٠•● Mejoran calidad de sonido de grabación Podcast, Radio, Streaming
+·٠•● Resistente al fuego y agua
+·٠•● Es liviano y fácil de instalar
+·٠•● Se vende en paquete de 12 unidades
+·٠•● Cada unidad mide 30 x 30 centímetros - Grosor de 5 centímetros
+──────────────────
+Disponibilidad🎨
+◉ Disponible en forma laminada triangular y piramidal
+◉ Color: Negro, plomo y rojo
+◉ Paquete de 12 unidades
+◉ Precio 330bs`;
+
+const alarmClock = `Nos preguntaste por el Reloj Despertador Clásico🌅
+──────────────────
+Principales características 🧏🏽‍♂️
+·٠•● Pantalla LCD (con luz)
+·٠•● Sensor de temperatura y humedad
+·٠•● Indicador de fecha
+·٠•● Alarma incorporada
+·٠•● Botón a presión de apagado y encendido de luz
+──────────────────
+Características TÉCNICAS📲
+·٠•● Tamaño compacto de 15.6 x 8.5 cm
+·٠•● Funcionamiento con 2 pilas AAA (incluidas)
+──────────────────
+◉ *Precio Bs. 150
+Precio de oferta: Bs. 139`;
+
 module.exports = {
+  city,
   zl02pro,
   lenovok3,
   comboPROQT82,
@@ -147,4 +182,6 @@ module.exports = {
   proyector,
   galaxyLamp,
   bell,
+  triangulePanels5,
+  alarmClock,
 };
