@@ -24,14 +24,11 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-let sock;
-let count = 0;
-
 const reconnect = () => {
-  console.log("Connecting...");
   connectToWhatsApp();
 };
 
+let sock;
 const connectToWhatsApp = async () => {
   const { state: e, saveCreds: s } = await useMultiFileAuthState(
     "session_auth_info"
@@ -131,6 +128,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
   }
 };
 
+let count = 0;
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   console.log(
     `${logMessage} ${++count} ${new Date(
@@ -147,5 +145,5 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   });
 };
 
-connectToWhatsApp().catch((err) => console.log("unexpected error: " + err));
+connectToWhatsApp();
 server.listen(port, () => {});
