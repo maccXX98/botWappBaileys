@@ -14,7 +14,10 @@ const path = require("path");
 const urlToTemplateAndMedia =
   require("./templatesUrls.js").urlToTemplateAndMedia;
 const urls = require("./templatesUrls.js").urls;
-const { city } = require("./productTemplates.js");
+const citiesToTemplateAndMedia =
+  require("./cityVariations.js").citiesToTemplateAndMedia;
+const cityVariations = require("./cityVariations.js").cityVariations;
+const { city } = require("./cityTemplates.js");
 
 const app = express();
 const server = createServer(app);
@@ -91,6 +94,7 @@ const handleConnectionUpdate = async (update) => {
   }
 };
 
+let lastMessage = "";
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -115,12 +119,27 @@ const handleMessageUpsert = async ({ messages, type }) => {
       let templateAndMedia = urlToTemplateAndMedia[product];
 
       if (templateAndMedia) {
-        await sendMessage(clientNumber, templateAndMedia, "product send");
+        await sendMessage(clientNumber, templateAndMedia, product);
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, {
             text: city,
           });
+          lastMessage = "city";
         }, 2000);
+      } else if (lastMessage === "city") {
+        const lowerCaseMessageBody = messageBody.toLowerCase();
+
+        const words = lowerCaseMessageBody.split(/\s+/);
+
+        const cityName = Object.keys(cityVariations).find((city) =>
+          cityVariations[city].some((variation) => words.includes(variation))
+        );
+
+        if (cityName) {
+          const templateAndMedia = citiesToTemplateAndMedia[cityName];
+          await sendMessage(clientNumber, templateAndMedia, cityName);
+        }
+        lastMessage = "";
       }
     }
   } catch (error) {
@@ -131,7 +150,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
 let count = 0;
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   console.log(
-    `${logMessage} ${++count} ${new Date(
+    `${++count} ${logMessage} ${new Date(
       new Date().getTime() +
         new Date().getTimezoneOffset() * 60000 -
         4 * 60 * 60000
