@@ -43,20 +43,15 @@ const connectToWhatsApp = async () => {
 };
 
 const deleteFolder = async (folderPath) => {
-  if (fs.existsSync(folderPath)) {
-    fs.rmSync(folderPath, { recursive: true, force: true });
-    console.log(`Carpeta session_auth_info eliminada`);
-  } else {
-    console.log(`La carpeta session_auth_info no existe`);
-  }
+  fs.existsSync(folderPath)
+    ? (fs.rmSync(folderPath, { recursive: true, force: true }), console.log(`Carpeta session_auth_info eliminada`))
+    : console.log(`La carpeta session_auth_info no existe`);
 };
 
 const handleDisconnection = async (message) => {
   console.log(message);
   await deleteFolder(path.join(__dirname, "session_auth_info"));
-  if (sock && sock.state === "open") {
-    sock.logout();
-  }
+  sock?.state === "open" && sock.logout();
   connectToWhatsApp().catch((err) => console.log("unexpected error: " + err));
 };
 
@@ -103,6 +98,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
       const sourceUrl = message?.message?.extendedTextMessage?.contextInfo?.externalAdReply?.sourceUrl || "";
       const messageBodyUrl = message?.message?.extendedTextMessage?.canonicalUrl || "";
       const messageBodyText = message?.message?.conversation || "";
+      const messageText = message?.message?.extendedTextMessage?.text || "";
       const clientNumber = message?.key?.remoteJid;
 
       let product = findProduct(urls, sourceUrl + messageBodyUrl);
@@ -115,16 +111,12 @@ const handleMessageUpsert = async ({ messages, type }) => {
           lastMessage = "city";
         }, 2000);
       } else if (lastMessage === "city") {
-        const lowerCaseMessageBody = messageBodyText.toLowerCase();
-        const words = lowerCaseMessageBody.split(/\s+/);
+        const words = (messageBodyText || messageText).toLowerCase().split(/\s+/);
         const cityName = Object.keys(cityVariations).find((city) =>
           cityVariations[city].some((variation) => words.includes(variation))
         );
-
-        if (cityName) {
-          const templateAndMedia = citiesToTemplateAndMedia[cityName];
-          await sendMessage(clientNumber, templateAndMedia, cityName);
-        }
+        console.log(cityName);
+        cityName && (await sendMessage(clientNumber, citiesToTemplateAndMedia[cityName], cityName));
         lastMessage = "";
       }
     }

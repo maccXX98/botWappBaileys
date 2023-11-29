@@ -1,6 +1,5 @@
-const city = `¿Desde qué ciudad nos escribe? 🇧🇴😁`;
-
-const zl02pro = `Nos preguntaste por el SMARTWATCH ZL02 PRO⌚
+module.exports = {
+  zl02pro: `Nos preguntaste por el SMARTWATCH ZL02 PRO⌚
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● Recibe notificaciones de WhatsApp, Face y otros
@@ -19,9 +18,8 @@ const zl02pro = `Nos preguntaste por el SMARTWATCH ZL02 PRO⌚
   ──────────────────
   Disponibilidad 🎨
   ◉ Color: Negro, Azul, Rosado, Beige
-  ◉ *Precio: Bs. 250*`;
-
-const lenovok3 = `*Nos preguntaste por el parlante Lenovo RGB*
+  ◉ *Precio: Bs. 250*`,
+  lenovok3: `*Nos preguntaste por el parlante Lenovo RGB*
   ──────────────
   *Principales características*
   - Diseño portátil para llevar a todas partes
@@ -35,9 +33,24 @@ const lenovok3 = `*Nos preguntaste por el parlante Lenovo RGB*
   - Modo sincronización de 2 parlantes
   ──────────────
   *Precio Bs.130 c/u*
-  *Combo de 2 unidades por Bs. 199*`;
-
-const comboPROQT82 = `*Combo Smartwatch Deportivo ⌚+ Audífonos inalámbricos Lenovo Premium*
+  *Combo de 2 unidades por Bs. 199*`,
+  comboPROQT82: `*Combo Smartwatch Deportivo ⌚+ Audífonos inalámbricos Lenovo Premium*
+-------------------------------
+*SmartWatch Sumergible*
+Pantalla de 1.39 pulgadas de alta resolución
+Contesta y realiza llamadas
+Cuenta con medidores de salud
+Recibe notificaciones de tus redes sociales preferidas
+Controla tus canciones ¡Incluyendo audífonos Bluetooth!
+*Audífonos Lenovo QT82*
+Batería de larga duración de hasta 12 horas.
+Conexión inalámbrica Bluetooth 5.0
+Cable de carga Tipo C
+Estuche de carga compacto de 300mAh
+-----------------------------------
+P̶r̶e̶c̶i̶o̶ ̶p̶o̶r̶ ̶s̶e̶p̶a̶r̶a̶d̶o̶ ̶B̶s̶.̶ ̶4̶1̶0̶
+Precio en combo Bs. 329`,
+  rechargeBattery: `*Combo Smartwatch Deportivo ⌚+ Audífonos inalámbricos Lenovo Premium*
   -------------------------------
   *SmartWatch Sumergible*
   Pantalla de 1.39 pulgadas de alta resolución
@@ -52,28 +65,8 @@ const comboPROQT82 = `*Combo Smartwatch Deportivo ⌚+ Audífonos inalámbricos 
   Estuche de carga compacto de 300mAh
   -----------------------------------
   P̶r̶e̶c̶i̶o̶ ̶p̶o̶r̶ ̶s̶e̶p̶a̶r̶a̶d̶o̶ ̶B̶s̶.̶ ̶4̶1̶0̶
-  Precio en combo Bs. 329`;
-
-const rechargeBattery = `*Nos preguntaste las Pilas Recargables por USB*
-  ──────────────────
-  *Principales características* 🧏🏽
-  ·٠•● Pack de 4 pilas tamaño AA (1700mAh)
-  ·٠•● Cable de carga USB con  2 puertos para comodidad
-  ·٠•● Pueden cargarse en cualquier dispositivo o directamente en la corriente
-  ──────────────────
-  *Características TÉCNICAS*📲
-  ·٠•● 1,5 horas para carga al 100%
-  ·٠•● Vida útil hasta 1200 recargas
-  ·٠•● Carga directa con cable USB-C 2 en 1 incluido
-  ──────────────────
-  *Presentaciones*
-  ◉ Pack de 4 unidades pilas AA con cable USB-C de 2 puertos
-  ◉ Pack de 4 unidades pilas AAA con cable USB-C de 2 puertos
-  ◉ Pack de 2 unidades pilas AA y 2 unidades pilas AAA con cable USB-C de 2 puertos
-  ◉ *~Precio Bs. 150~
-  ◉ *Precio de oferta cualquiera de las presentaciones: Bs. 135*`;
-
-const deskLamp = `Nos preguntaste por la Lampara de Escritorio 💡
+  Precio en combo Bs. 329`,
+  deskLamp: `Nos preguntaste por la Lampara de Escritorio 💡
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● 5 niveles de temperatura (blanco a cálido)
@@ -88,9 +81,8 @@ const deskLamp = `Nos preguntaste por la Lampara de Escritorio 💡
   ──────────────────
   Disponibilidad 🎨
   ◉ color: Plomo
-  ◉ *Precio: Bs. 180* `;
-
-const proyector = `Nos preguntaste por el Proyector Portátil📽️
+  ◉ *Precio: Bs. 180*`,
+  proyector: `Nos preguntaste por el Proyector Portátil📽️
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● Ligera y compacta
@@ -105,9 +97,8 @@ const proyector = `Nos preguntaste por el Proyector Portátil📽️
   ·٠•● definición 320x240px
   ·٠•● Permite la conexión de Chromecast, Tv Stick, etc.
   ──────────────────
-  ◉ *Precio: Bs. 300* `;
-
-const galaxyLamp = `Nos preguntaste por el Galaxy Lamp🌌
+  ◉ *Precio: Bs. 300*`,
+  galaxyLamp: `Nos preguntaste por el Galaxy Lamp🌌
   ──────────────────
   Principales características 🧏🏽‍♂️
   ·٠•● Tecnología LED avanzada
@@ -121,67 +112,51 @@ const galaxyLamp = `Nos preguntaste por el Galaxy Lamp🌌
   ·٠•● 1 mando a la distancia.
   ──────────────────
   ◉ *~Precio Bs. 180~
-  *Precio de oferta: Bs. 159* `;
-
-const bell = `*Preguntaste por el timbre inalámbrico!*
-___________________________
-*Caracteristicas Principales*
-* Instalación rápida en 1 minuto
-* Alcance de 300 metros (sin interferencias)
-* Sin cables ni instalación eléctrica
-* Diseño elegante y moderno
-___________________________
-*Caracteristicas Técnicas*
-* Incluye 1 timbre que funciona con una pila de reloj y las bocinas se conectan directamente a la corriente electrica
-* 58 melodías y ajuste de volumen
-* Resistente al agua y al polvo
-___________________________
-Presentaciones:
-1 timbre con 1 bocina *Precio Bs. 159*
-1 timbre con 2 bocinas *Precio Bs. 220*`;
-
-const triangulePanels5 = `Nos preguntaste por los Paneles Acústicos de 5cm! 🔇🎵
-──────────────────
-Principales características 🧏🏽‍♂️
-·٠•● Ayudan con el Eco y Reducción de ruido exterior/interior (2dB+-1)
-·٠•● Mejoran calidad de sonido de grabación Podcast, Radio, Streaming
-·٠•● Resistente al fuego y agua
-·٠•● Es liviano y fácil de instalar
-·٠•● Se vende en paquete de 12 unidades
-·٠•● Cada unidad mide 30 x 30 centímetros - Grosor de 5 centímetros
-──────────────────
-Disponibilidad🎨
-◉ Disponible en forma laminada triangular y piramidal
-◉ Color: Negro, plomo y rojo
-◉ Paquete de 12 unidades
-◉ Precio 330bs`;
-
-const alarmClock = `Nos preguntaste por el Reloj Despertador Clásico🌅
-──────────────────
-Principales características 🧏🏽‍♂️
-·٠•● Pantalla LCD (con luz)
-·٠•● Sensor de temperatura y humedad
-·٠•● Indicador de fecha
-·٠•● Alarma incorporada
-·٠•● Botón a presión de apagado y encendido de luz
-──────────────────
-Características TÉCNICAS📲
-·٠•● Tamaño compacto de 15.6 x 8.5 cm
-·٠•● Funcionamiento con 2 pilas AAA (incluidas)
-──────────────────
-◉ *Precio Bs. 150
-Precio de oferta: Bs. 139`;
-
-module.exports = {
-  city,
-  zl02pro,
-  lenovok3,
-  comboPROQT82,
-  rechargeBattery,
-  deskLamp,
-  proyector,
-  galaxyLamp,
-  bell,
-  triangulePanels5,
-  alarmClock,
+  *Precio de oferta: Bs. 159* `,
+  bell: `*Preguntaste por el timbre inalámbrico!*
+  ___________________________
+  *Caracteristicas Principales*
+  * Instalación rápida en 1 minuto
+  * Alcance de 300 metros (sin interferencias)
+  * Sin cables ni instalación eléctrica
+  * Diseño elegante y moderno
+  ___________________________
+  *Caracteristicas Técnicas*
+  * Incluye 1 timbre que funciona con una pila de reloj y las bocinas se conectan directamente a la corriente electrica
+  * 58 melodías y ajuste de volumen
+  * Resistente al agua y al polvo
+  ___________________________
+  Presentaciones:
+  1 timbre con 1 bocina *Precio Bs. 159*
+  1 timbre con 2 bocinas *Precio Bs. 220*`,
+  triangulePanels5: `Nos preguntaste por los Paneles Acústicos de 5cm! 🔇🎵
+  ──────────────────
+  Principales características 🧏🏽‍♂️
+  ·٠•● Ayudan con el Eco y Reducción de ruido exterior/interior (2dB+-1)
+  ·٠•● Mejoran calidad de sonido de grabación Podcast, Radio, Streaming
+  ·٠•● Resistente al fuego y agua
+  ·٠•● Es liviano y fácil de instalar
+  ·٠•● Se vende en paquete de 12 unidades
+  ·٠•● Cada unidad mide 30 x 30 centímetros - Grosor de 5 centímetros
+  ──────────────────
+  Disponibilidad🎨
+  ◉ Disponible en forma laminada triangular y piramidal
+  ◉ Color: Negro, plomo y rojo
+  ◉ Paquete de 12 unidades
+  ◉ Precio 330bs`,
+  alarmClock: `Nos preguntaste por el Reloj Despertador Clásico🌅
+  ──────────────────
+  Principales características 🧏🏽‍♂️
+  ·٠•● Pantalla LCD (con luz)
+  ·٠•● Sensor de temperatura y humedad
+  ·٠•● Indicador de fecha
+  ·٠•● Alarma incorporada
+  ·٠•● Botón a presión de apagado y encendido de luz
+  ──────────────────
+  Características TÉCNICAS📲
+  ·٠•● Tamaño compacto de 15.6 x 8.5 cm
+  ·٠•● Funcionamiento con 2 pilas AAA (incluidas)
+  ──────────────────
+  ◉ *Precio Bs. 150
+  Precio de oferta: Bs. 139`,
 };
