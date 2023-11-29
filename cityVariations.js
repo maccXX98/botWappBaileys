@@ -94,7 +94,7 @@ const cityVariations = {
   potosi: ["potosí", "potosi", "pts", "pti"],
   oruro: ["oruro", "oru"],
   santacruz: ["scz", "sc", "cruz", "santa", "stcruz", "santacruz"],
-  lapaz: ["lp", "lpz", "paz", "lapaz"],
+  lapaz: ["lp", "lpz", "paz", "lapaz", "pax", "lapax"],
   elalto: ["alto", "ea", "delalto", "elalto"],
   uyuni: ["uyuni"],
   yacuiba: ["yacuiba"],

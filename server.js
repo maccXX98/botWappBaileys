@@ -111,12 +111,23 @@ const handleMessageUpsert = async ({ messages, type }) => {
           lastMessage = "city";
         }, 2000);
       } else if (lastMessage === "city") {
-        const words = (messageBodyText || messageText).toLowerCase().split(/\s+/);
+        let words;
+        if (messageBodyText) {
+          const lowerCaseMessageBody = messageBodyText.toLowerCase();
+          words = lowerCaseMessageBody.split(/\s+/);
+        } else if (messageText) {
+          const lowerCaseMessageText = messageText.toLowerCase();
+          words = lowerCaseMessageText.split(/\s+/);
+        }
+        console.log(words);
         const cityName = Object.keys(cityVariations).find((city) =>
           cityVariations[city].some((variation) => words.includes(variation))
         );
-        console.log(cityName);
-        cityName && (await sendMessage(clientNumber, citiesToTemplateAndMedia[cityName], cityName));
+
+        if (cityName) {
+          const templateAndMedia = citiesToTemplateAndMedia[cityName];
+          await sendMessage(clientNumber, templateAndMedia, cityName);
+        }
         lastMessage = "";
       }
     }
