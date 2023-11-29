@@ -1,8 +1,4 @@
-const {
-  makeWASocket,
-  useMultiFileAuthState,
-  DisconnectReason,
-} = require("@whiskeysockets/baileys");
+const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require("@whiskeysockets/baileys");
 const { Boom } = require("@hapi/boom");
 const { createServer } = require("http");
 const log = require("pino");
@@ -12,6 +8,12 @@ const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
 
+const urlToTemplateAndMedia = require("./templatesUrls.js").urlToTemplateAndMedia;
+const urls = require("./templatesUrls.js").urls;
+const citiesToTemplateAndMedia = require("./cityVariations.js").citiesToTemplateAndMedia;
+const cityVariations = require("./cityVariations.js").cityVariations;
+const { city } = require("./cityTemplates.js");
+
 const app = express();
 const server = createServer(app);
 const port = process.env.PORT || 8080;
@@ -20,15 +22,16 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+let sock;
+let lastMessage = "";
+let count = 0;
+
 const reconnect = () => {
   connectToWhatsApp();
 };
 
-let sock;
 const connectToWhatsApp = async () => {
-  const { state: e, saveCreds: s } = await useMultiFileAuthState(
-    "session_auth_info"
-  );
+  const { state: e, saveCreds: s } = await useMultiFileAuthState("session_auth_info");
   (sock = makeWASocket({
     printQRInTerminal: !0,
     auth: e,
@@ -63,9 +66,7 @@ const handleConnectionUpdate = async (update) => {
     const reason = new Boom(lastDisconnect.error).output.statusCode;
     switch (reason) {
       case DisconnectReason.badSession:
-        await handleDisconnection(
-          "Bad Session File, Delete session_auth_info and Scan Again"
-        );
+        await handleDisconnection("Bad Session File, Delete session_auth_info and Scan Again");
         break;
       case DisconnectReason.connectionClosed:
       case DisconnectReason.connectionLost:
@@ -74,9 +75,7 @@ const handleConnectionUpdate = async (update) => {
         reconnect();
         break;
       case DisconnectReason.connectionReplaced:
-        await handleDisconnection(
-          "Connecting to another open session, close the current session"
-        );
+        await handleDisconnection("Connecting to another open session, close the current session");
         break;
       case DisconnectReason.loggedOut:
         await handleDisconnection("Disconnected device");
@@ -87,36 +86,24 @@ const handleConnectionUpdate = async (update) => {
   }
 };
 
-const urlToTemplateAndMedia =
-  require("./templatesUrls.js").urlToTemplateAndMedia;
-const urls = require("./templatesUrls.js").urls;
-const citiesToTemplateAndMedia =
-  require("./cityVariations.js").citiesToTemplateAndMedia;
-const cityVariations = require("./cityVariations.js").cityVariations;
-const { city } = require("./cityTemplates.js");
+const findProduct = (map, text) => {
+  for (const [product, urls] of Object.entries(map)) {
+    for (const url of urls) {
+      if (text.includes(url)) {
+        return product;
+      }
+    }
+  }
+};
 
-let lastMessage = "";
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
-      const sourceUrl =
-        messages[0]?.message?.extendedTextMessage?.contextInfo?.externalAdReply
-          ?.sourceUrl || "";
-      const messageBodyUrl =
-        messages?.[0]?.message?.extendedTextMessage?.canonicalUrl || "";
-        const messageBodyText =
-        messages?.[0]?.message?.conversation || "";
-      const clientNumber = messages[0]?.key?.remoteJid;
-
-      const findProduct = (map, text) => {
-        for (const [product, urls] of Object.entries(map)) {
-          for (const url of urls) {
-            if (text.includes(url)) {
-              return product;
-            }
-          }
-        }
-      };
+      const message = messages[0];
+      const sourceUrl = message?.message?.extendedTextMessage?.contextInfo?.externalAdReply?.sourceUrl || "";
+      const messageBodyUrl = message?.message?.extendedTextMessage?.canonicalUrl || "";
+      const messageBodyText = message?.message?.conversation || "";
+      const clientNumber = message?.key?.remoteJid;
 
       let product = findProduct(urls, sourceUrl + messageBodyUrl);
       let templateAndMedia = urlToTemplateAndMedia[product];
@@ -124,9 +111,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
       if (templateAndMedia) {
         await sendMessage(clientNumber, templateAndMedia, product);
         setTimeout(async () => {
-          await sock.sendMessage(clientNumber, {
-            text: city,
-          });
+          await sock.sendMessage(clientNumber, { text: city });
           lastMessage = "city";
         }, 2000);
       } else if (lastMessage === "city") {
@@ -135,6 +120,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
         const cityName = Object.keys(cityVariations).find((city) =>
           cityVariations[city].some((variation) => words.includes(variation))
         );
+
         if (cityName) {
           const templateAndMedia = citiesToTemplateAndMedia[cityName];
           await sendMessage(clientNumber, templateAndMedia, cityName);
@@ -143,17 +129,14 @@ const handleMessageUpsert = async ({ messages, type }) => {
       }
     }
   } catch (error) {
-    console.log("error ", error);
+    console.error("Error in handleMessageUpsert: ", error);
   }
 };
 
-let count = 0;
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   console.log(
     `${++count} / ${logMessage} / ${new Date(
-      new Date().getTime() +
-        new Date().getTimezoneOffset() * 60000 -
-        4 * 60 * 60000
+      new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 4 * 60 * 60000
     ).toLocaleTimeString()}`
   );
   console.log(clientNumber.replace("@s.whatsapp.net", ""));

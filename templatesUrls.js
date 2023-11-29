@@ -78,5 +78,5 @@ const urls = {
 
 module.exports = {
   urlToTemplateAndMedia: urlToTemplateAndMedia,
-  urls: urls
+  urls: urls,
 };
