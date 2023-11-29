@@ -9,4 +9,4 @@ npm start
 
 # port default 8080
 
-# si tiene la carpeta crear por defecto eliminelo(solo la primera vez ) session_auth_info (guarda la informacion del usario localmente)
+# si tiene la carpeta session_auth_info por defecto eliminelo (solo la primera vez ) session_auth_info (guarda la informacion del usario localmente)
