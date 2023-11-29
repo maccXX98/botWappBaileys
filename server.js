@@ -11,13 +11,6 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
-const urlToTemplateAndMedia =
-  require("./templatesUrls.js").urlToTemplateAndMedia;
-const urls = require("./templatesUrls.js").urls;
-const citiesToTemplateAndMedia =
-  require("./cityVariations.js").citiesToTemplateAndMedia;
-const cityVariations = require("./cityVariations.js").cityVariations;
-const { city } = require("./cityTemplates.js");
 
 const app = express();
 const server = createServer(app);
@@ -94,6 +87,14 @@ const handleConnectionUpdate = async (update) => {
   }
 };
 
+const urlToTemplateAndMedia =
+  require("./templatesUrls.js").urlToTemplateAndMedia;
+const urls = require("./templatesUrls.js").urls;
+const citiesToTemplateAndMedia =
+  require("./cityVariations.js").citiesToTemplateAndMedia;
+const cityVariations = require("./cityVariations.js").cityVariations;
+const { city } = require("./cityTemplates.js");
+
 let lastMessage = "";
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
@@ -101,8 +102,10 @@ const handleMessageUpsert = async ({ messages, type }) => {
       const sourceUrl =
         messages[0]?.message?.extendedTextMessage?.contextInfo?.externalAdReply
           ?.sourceUrl || "";
-      const messageBody =
-        messages?.[0]?.message?.extendedTextMessage?.text || "";
+      const messageBodyUrl =
+        messages?.[0]?.message?.extendedTextMessage?.canonicalUrl || "";
+        const messageBodyText =
+        messages?.[0]?.message?.conversation || "";
       const clientNumber = messages[0]?.key?.remoteJid;
 
       const findProduct = (map, text) => {
@@ -115,7 +118,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
         }
       };
 
-      let product = findProduct(urls, sourceUrl + messageBody);
+      let product = findProduct(urls, sourceUrl + messageBodyUrl);
       let templateAndMedia = urlToTemplateAndMedia[product];
 
       if (templateAndMedia) {
@@ -127,14 +130,11 @@ const handleMessageUpsert = async ({ messages, type }) => {
           lastMessage = "city";
         }, 2000);
       } else if (lastMessage === "city") {
-        const lowerCaseMessageBody = messageBody.toLowerCase();
-
+        const lowerCaseMessageBody = messageBodyText.toLowerCase();
         const words = lowerCaseMessageBody.split(/\s+/);
-
         const cityName = Object.keys(cityVariations).find((city) =>
           cityVariations[city].some((variation) => words.includes(variation))
         );
-
         if (cityName) {
           const templateAndMedia = citiesToTemplateAndMedia[cityName];
           await sendMessage(clientNumber, templateAndMedia, cityName);
@@ -150,7 +150,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
 let count = 0;
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   console.log(
-    `${++count} ${logMessage} ${new Date(
+    `${++count} / ${logMessage} / ${new Date(
       new Date().getTime() +
         new Date().getTimezoneOffset() * 60000 -
         4 * 60 * 60000

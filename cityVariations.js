@@ -90,18 +90,18 @@ const citiesToTemplateAndMedia = {
 const cityVariations = {
   cochabamba: ["cocha", "cochabamba", "cbb", "cbba"],
   tarija: ["tarija", "trj", "tja"],
-  sucre: ["sucre", "chuquisaca", "scr"],
+  sucre: ["sucre", "chuquisaca", "scr", "chuqui"],
   potosi: ["potosí", "potosi", "pts", "pti"],
   oruro: ["oruro", "oru"],
-  santacruz: ["scz", "sc", "cruz", "santa", "stcruz"],
-  lapaz: ["lp", "lpz", "paz"],
-  elalto: ["alto", "ea"],
+  santacruz: ["scz", "sc", "cruz", "santa", "stcruz", "santacruz"],
+  lapaz: ["lp", "lpz", "paz", "lapaz"],
+  elalto: ["alto", "ea", "delalto", "elalto"],
   uyuni: ["uyuni"],
   yacuiba: ["yacuiba"],
   trinidad: ["trinidad"],
   tupiza: ["tupiza"],
   montero: ["montero"],
-  villazon: ["villazon"],
+  villazon: ["villazon", "villazón"],
 };
 
 module.exports = {
