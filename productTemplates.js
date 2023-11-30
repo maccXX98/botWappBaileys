@@ -208,4 +208,20 @@ Precio en combo Bs. 329`,
   ·──────────────────
   *Disponibilidad* 🎨
    *Precio bs. 200 * `,
+  buggy: `*Nos preguntaste por el buggy todoterreno*
+  ──────────────
+  *Principales características*
+  -Aceleración rápida
+  -Diseño todo terreno
+  Control remoto estilo volante
+  ──────────────
+  *Características técnicas*
+  -Escala 1:16
+  -medida: largo 25cm *11cm alto * ancho 15cm
+  -Auto incluye Bateria de 500mAh 3,7V
+  -Control remoto funciona con 3 pilas AAA
+  ──────────────
+  Disponible en colores:
+  naranja🟠verde🟢
+  *Precio Bs. 139*`,
 };

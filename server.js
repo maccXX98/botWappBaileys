@@ -23,8 +23,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 let sock;
-let lastMessage = "";
-let count = 0;
 
 const reconnect = () => {
   connectToWhatsApp();
@@ -91,6 +89,9 @@ const findProduct = (map, text) => {
   }
 };
 
+let lastMessages = {};
+let count = 0;
+
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -108,27 +109,30 @@ const handleMessageUpsert = async ({ messages, type }) => {
         await sendMessage(clientNumber, templateAndMedia, product);
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, { text: city });
-          lastMessage = "city";
+          lastMessages[clientNumber] = "city";
         }, 2000);
-      } else if (lastMessage === "city") {
+      } else if (lastMessages[clientNumber] === "city") {
+        console.log(message);
         let words;
         if (messageBodyText) {
-          const lowerCaseMessageBody = messageBodyText.toLowerCase();
-          words = lowerCaseMessageBody.split(/\s+/);
+          const symbolFreeMessageBody = messageBodyText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
+          words = symbolFreeMessageBody.split(/\s+/);
         } else if (messageText) {
-          const lowerCaseMessageText = messageText.toLowerCase();
-          words = lowerCaseMessageText.split(/\s+/);
+          const symbolFreeMessageText = messageText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
+          words = symbolFreeMessageText.split(/\s+/);
         }
         console.log(words);
-        const cityName = Object.keys(cityVariations).find((city) =>
-          cityVariations[city].some((variation) => words.includes(variation))
-        );
+        const cityName =
+          words &&
+          Object.keys(cityVariations).find((city) =>
+            cityVariations[city].some((variation) => words.includes(variation))
+          );
 
         if (cityName) {
           const templateAndMedia = citiesToTemplateAndMedia[cityName];
           await sendMessage(clientNumber, templateAndMedia, cityName);
         }
-        lastMessage = "";
+        lastMessages[clientNumber] = "";
       }
     }
   } catch (error) {
