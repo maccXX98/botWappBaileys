@@ -93,7 +93,7 @@ const cityVariations = {
   sucre: ["sucre", "chuquisaca", "scr", "chuqui"],
   potosi: ["potosí", "potosi", "pts", "pti"],
   oruro: ["oruro", "oru"],
-  santacruz: ["scz", "sc", "cruz", "santa", "stcruz", "santacruz","sta"],
+  santacruz: ["scz", "sc", "cruz", "santa", "stcruz", "santacruz","sta","stc"],
   lapaz: ["lp", "lpz", "paz", "lapaz", "pax", "lapax"],
   elalto: ["alto", "ea", "delalto", "elalto"],
   uyuni: ["uyuni"],

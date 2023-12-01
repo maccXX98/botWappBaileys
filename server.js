@@ -112,7 +112,6 @@ const handleMessageUpsert = async ({ messages, type }) => {
           lastMessages[clientNumber] = "city";
         }, 2000);
       } else if (lastMessages[clientNumber] === "city") {
-        console.log(message);
         let words;
         if (messageBodyText) {
           const symbolFreeMessageBody = messageBodyText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
@@ -121,7 +120,6 @@ const handleMessageUpsert = async ({ messages, type }) => {
           const symbolFreeMessageText = messageText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
           words = symbolFreeMessageText.split(/\s+/);
         }
-        console.log(words);
         const cityName =
           words &&
           Object.keys(cityVariations).find((city) =>
@@ -141,12 +139,30 @@ const handleMessageUpsert = async ({ messages, type }) => {
 };
 
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
-  console.log(
-    `${++count} / ${logMessage} / ${new Date(
-      new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 4 * 60 * 60000
-    ).toLocaleTimeString()}`
-  );
-  console.log(clientNumber.replace("@s.whatsapp.net", ""));
+  const logData = {
+    count: ++count,
+    logMessage: logMessage,
+    time: new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 4 * 60 * 60000).toLocaleTimeString(),
+    clientNumber: clientNumber.replace("@s.whatsapp.net", ""),
+  };
+
+  console.log(`${logData.count} / ${logData.logMessage} / ${logData.time}`);
+  console.log(logData.clientNumber);
+
+  fs.readFile("log.json", (err, data) => {
+    if (err) throw err;
+    let json = [];
+    if (data.length !== 0) {
+      json = JSON.parse(data);
+    }
+    json.push(logData);
+
+    fs.writeFile("log.json", JSON.stringify(json), (err) => {
+      if (err) throw err;
+      console.log("Log data saved to log.json");
+    });
+  });
+
   const image = templateAndMedia.media;
   await sock.sendMessage(clientNumber, {
     image: image,
