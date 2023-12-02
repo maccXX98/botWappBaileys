@@ -95,7 +95,6 @@ let count = 0;
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
-      console.log(messages[0].message);
       const message = messages[0];
       const sourceUrl = message?.message?.extendedTextMessage?.contextInfo?.externalAdReply?.sourceUrl || "";
       const messageBodyUrl = message?.message?.extendedTextMessage?.matchedText || "";
