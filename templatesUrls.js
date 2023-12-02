@@ -85,23 +85,54 @@ const urlToTemplateAndMedia = {
       url: "https://www.novex.com.bo/wp-content/uploads/2023/11/buggy.png",
     },
   },
+  disparadorHidrogel: {
+    template: productTemplate.disparadorHidrogel,
+    media: {
+      url: "https://www.novex.com.bo/wp-content/uploads/2023/12/disparadorHidrogel.png",
+    },
+  },
+  tanqueHidrogel: {
+    template: productTemplate.tanqueHidrogel,
+    media: {
+      url: "https://www.novex.com.bo/wp-content/uploads/2023/12/tanqueHidrogel.png",
+    },
+  },
 };
 
 const urls = {
-  zl02pro: ["https://fb.me/3baAXHaZo", "https://fb.me/8l0ADrOU5"],
-  lenovok3: ["https://fb.me/6bkHK16rS", "https://fb.me/37dLBInAu", "https://fb.me/1GnmqP6Ba"],
+  zl02pro: [
+    "https://fb.me/3baAXHaZo",
+    "https://fb.me/8l0ADrOU5",
+    "https://fb.me/45HGh5WWh",
+    "https://fb.me/JKqq8pFo",
+    "https://fb.me/3yTpLURHi",
+    "https://fb.me/5QiF6iZQn",
+  ],
+  lenovok3: [
+    "https://fb.me/6bkHK16rS",
+    "https://fb.me/37dLBInAu",
+    "https://fb.me/1GnmqP6Ba",
+    "https://www.instagram.com/p/C0MO7KEgKB_/",
+  ],
   proyector: [
     "https://fb.me/84cTsWGtH",
     "https://fb.me/whqy1OQsX",
     "https://fb.me/42tDKb8y5",
     "https://fb.me/1G7ASd7Rf",
-    "https://www.instagram.com/p/Czbh2TTAmJ1/"
+    "https://www.instagram.com/p/Czbh2TTAmJ1/",
+    "https://fb.me/44yzlB14F",
+    "https://fb.me/3KhnsCLId",
   ],
-  galaxyLamp: ["https://fb.me/6BR0LAjjL", "https://fb.me/5DPkpoyRK"],
+  galaxyLamp: ["https://fb.me/6BR0LAjjL", "https://fb.me/5DPkpoyRK", "https://fb.me/gXUZdDj2o"],
   bell: ["https://fb.me/45ex5JHW8", "https://fb.me/4a6XKQVP2"],
-  triangulePanels5: ["https://fb.me/36rvkZY0y"],
+  triangulePanels5: ["https://fb.me/36rvkZY0y", "https://fb.me/c6Oh4bC9p"],
   alarmClock: ["https://fb.me/8B2fl6g3Q", "https://fb.me/1GjqQ4Mk5"],
-  rechargeBattery: ["https://fb.me/1FCffPyGI", "https://fb.me/3QPoszMHK"],
+  rechargeBattery: [
+    "https://fb.me/1FCffPyGI",
+    "https://fb.me/3QPoszMHK",
+    "https://fb.me/4Y2VKv2nR",
+    "https://fb.me/fJHohfSqs",
+  ],
   comboPROQT82: [
     "https://fb.me/3eQzBdeRB",
     "https://fb.me/6SYhrXCIC",
@@ -110,6 +141,9 @@ const urls = {
     "https://fb.me/1yptfYw3R",
     "https://fb.me/1uaUz17B7",
     "https://fb.me/1qs64go6a",
+    "https://fb.me/72T10bUb9",
+    "https://fb.me/2Y1zYkC17",
+    "https://fb.me/5gWR4SQGL",
   ],
   deskLamp: ["https://fb.me/3bwVkQeto", "https://fb.me/46HqXI2x1", "https://www.instagram.com/p/C0J3uKEgfA8"],
   helicopter: [
@@ -119,10 +153,40 @@ const urls = {
     "https://fb.me/4VvrTd1jd",
     "https://fb.me/5YA5t6vUx",
     "https://fb.me/6RM3AyrOn",
+    "https://fb.me/4FSjWz7XJ",
+    "https://fb.me/6AYFRzQub",
+    "https://fb.me/3W2CrbaqO",
+    "https://fb.me/1td3dy6M6",
+    "https://fb.me/1hsmCw7zz",
+    "https://fb.me/3iqierP7N",
   ],
-  barrasLedRgb: ["https://fb.me/1J5ZhmLy7", "https://fb.me/3gHrXphG0", "https://fb.me/4xH1318fk"],
+  barrasLedRgb: [
+    "https://fb.me/1J5ZhmLy7",
+    "https://fb.me/3gHrXphG0",
+    "https://fb.me/4xH1318fk",
+    "https://fb.me/3lzD5WX4F",
+    "https://fb.me/9aeZPco6x",
+    "https://www.instagram.com/p/Czeqhdvg3Nw/",
+    "https://fb.me/12HsNROpE",
+  ],
   skmmanijaroja: ["https://fb.me/79szoMg5T"],
-  buggy: ["https://fb.me/38ehdWkSQ", "https://fb.me/6mdKQefkz"],
+  buggy: ["https://fb.me/38ehdWkSQ", "https://fb.me/6mdKQefkz", "https://fb.me/ev07lpOHB"],
+  disparadorHidrogel: [
+    "https://fb.me/1udlP4IlY",
+    "https://fb.me/4HKJizri5",
+    "https://fb.me/4DPqLAkuT",
+    "https://fb.me/1BVXQwBuO",
+    "https://www.instagram.com/p/C0Ru7j7gZ1M/",
+    "https://fb.me/hfjlyIYIS",
+    "https://fb.me/6HrcthFBi",
+  ],
+  tanqueHidrogel: [
+    "https://fb.me/3ZDdg6tta",
+    "https://fb.me/347pODmAk",
+    "https://fb.me/1o01JB5Jv",
+    "https://fb.me/35Pqk3YeS",
+    "https://fb.me/19b7zZDtU",
+  ],
 };
 
 module.exports = {

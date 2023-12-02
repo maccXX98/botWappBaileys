@@ -95,14 +95,15 @@ let count = 0;
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
+      console.log(messages[0].message);
       const message = messages[0];
       const sourceUrl = message?.message?.extendedTextMessage?.contextInfo?.externalAdReply?.sourceUrl || "";
-      const messageBodyUrl = message?.message?.extendedTextMessage?.canonicalUrl || "";
+      const messageBodyUrl = message?.message?.extendedTextMessage?.matchedText || "";
       const messageBodyText = message?.message?.conversation || "";
       const messageText = message?.message?.extendedTextMessage?.text || "";
       const clientNumber = message?.key?.remoteJid;
 
-      let product = findProduct(urls, sourceUrl + messageBodyUrl);
+      let product = findProduct(urls, sourceUrl + messageBodyUrl + messageBodyText);
       let templateAndMedia = urlToTemplateAndMedia[product];
 
       if (templateAndMedia) {

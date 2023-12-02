@@ -224,4 +224,34 @@ Precio en combo Bs. 329`,
   Disponible en colores:
   naranja🟠verde🟢
   *Precio Bs. 139*`,
+  disparadorHidrogel: `¿Listos para llevar la diversión a casa?
+
+  Recargable con USB
+  Caja de cambios mejorado
+  Velocidad automática
+  Incluye munición de hidrogel
+  Lentes de protección
+  Diseño ergonómico
+  Material resistente
+  *Recomendable para mayores de  12 años*
+  Menores con supervision de un adulto
+  Disponible en colores:
+  🔵azul
+  🔴rojo
+
+  Precio Bs. 139 `,
+  tanqueHidrogel: `¿Buscas la combinación perfecta de diversión y tecnología?
+
+  Control remoto
+  Movimientos laterales y diagonales
+  Diseño todoterreno
+  Sube pistas hasta 45 grados
+  Bombas de agua suaves
+  Resistente y duradero
+  Funciona con hidrogel
+  Disponible en colores:
+  🔵azul
+  🔴rojo
+
+  Precio Bs. 250`,
 };
