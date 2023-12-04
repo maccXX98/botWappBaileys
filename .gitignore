@@ -22,6 +22,8 @@ log.json
 *.njsproj
 *.sln
 *.sw?
+.env
+package-lock.json
 
 # Ignorar la carpeta images
 /images/
