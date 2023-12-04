@@ -139,15 +139,15 @@ const handleMessageUpsert = async ({ messages, type }) => {
 };
 
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
-  const logData = {
-    count: ++count,
-    logMessage: logMessage,
-    time: new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 4 * 60 * 60000).toLocaleTimeString(),
-    clientNumber: clientNumber.replace("@s.whatsapp.net", ""),
-  };
+  const logData = [
+    ++count,
+    logMessage,
+    new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 4 * 60 * 60000).toLocaleTimeString(),
+    clientNumber.replace("@s.whatsapp.net", ""),
+  ];
 
-  console.log(`${logData.count} / ${logData.logMessage} / ${logData.time}`);
-  console.log(logData.clientNumber);
+  console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
+  console.log(logData[3]);
 
   fs.readFile("log.json", (err, data) => {
     if (err) throw err;
@@ -159,7 +159,6 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
 
     fs.writeFile("log.json", JSON.stringify(json), (err) => {
       if (err) throw err;
-      console.log("Log data saved to log.json");
     });
   });
 
