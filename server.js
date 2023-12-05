@@ -7,12 +7,9 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const path = require("path");
+const { authorize, productsList, citiesList } = require("./googleAPI.js");
 
-const urlToTemplateAndMedia = require("./templatesUrls.js").urlToTemplateAndMedia;
-const urls = require("./templatesUrls.js").urls;
-const citiesToTemplateAndMedia = require("./cityVariations.js").citiesToTemplateAndMedia;
-const cityVariations = require("./cityVariations.js").cityVariations;
-const { city } = require("./cityTemplates.js");
+const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
 const app = express();
 const server = createServer(app);
@@ -79,16 +76,6 @@ const handleConnectionUpdate = async (update) => {
   }
 };
 
-const findProduct = (map, text) => {
-  for (const [product, urls] of Object.entries(map)) {
-    for (const url of urls) {
-      if (text.includes(url)) {
-        return product;
-      }
-    }
-  }
-};
-
 let lastMessages = {};
 let count = 0;
 
@@ -102,16 +89,22 @@ const handleMessageUpsert = async ({ messages, type }) => {
       const messageText = message?.message?.extendedTextMessage?.text || "";
       const clientNumber = message?.key?.remoteJid;
 
-      let product = findProduct(urls, sourceUrl + messageBodyUrl + messageBodyText);
-      let templateAndMedia = urlToTemplateAndMedia[product];
+      const auth = await authorize();
+      const data = await productsList(auth);
+      const rowDataProduct = data.find((row) => row.urls.includes(sourceUrl + messageBodyUrl + messageBodyText));
 
-      if (templateAndMedia) {
-        await sendMessage(clientNumber, templateAndMedia, product);
-        setTimeout(async () => {
-          await sock.sendMessage(clientNumber, { text: city });
-          lastMessages[clientNumber] = "city";
-        }, 2000);
-      } else if (lastMessages[clientNumber] === "city") {
+      if (rowDataProduct) {
+        let product = rowDataProduct.product;
+        let templateAndMedia = { template: rowDataProduct.template, media: rowDataProduct.image };
+
+        if (templateAndMedia) {
+          await sendMessage(clientNumber, templateAndMedia, product);
+          setTimeout(async () => {
+            await sock.sendMessage(clientNumber, { text: city });
+            lastMessages[clientNumber] = "next";
+          }, 2000);
+        }
+      } else if (lastMessages[clientNumber] === "next") {
         let words;
         if (messageBodyText) {
           const symbolFreeMessageBody = messageBodyText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
@@ -120,17 +113,18 @@ const handleMessageUpsert = async ({ messages, type }) => {
           const symbolFreeMessageText = messageText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
           words = symbolFreeMessageText.split(/\s+/);
         }
-        const cityName =
-          words &&
-          Object.keys(cityVariations).find((city) =>
-            cityVariations[city].some((variation) => words.includes(variation))
-          );
+        const auth = await authorize();
+        const cityData = await citiesList(auth);
+        const rowDataCity = cityData.find((row) => row.variations.some((variation) => words.includes(variation)));
+        if (rowDataCity) {
+          let cityName = rowDataCity.city;
+          let templateAndMedia = { template: rowDataCity.template, media: rowDataCity.image };
 
-        if (cityName) {
-          const templateAndMedia = citiesToTemplateAndMedia[cityName];
-          await sendMessage(clientNumber, templateAndMedia, cityName);
+          if (templateAndMedia) {
+            await sendMessage(clientNumber, templateAndMedia, cityName);
+          }
+          lastMessages[clientNumber] = "";
         }
-        lastMessages[clientNumber] = "";
       }
     }
   } catch (error) {
@@ -162,7 +156,7 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
     });
   });
 
-  const image = templateAndMedia.media;
+  const image = { url: templateAndMedia.media };
   await sock.sendMessage(clientNumber, {
     image: image,
     caption: templateAndMedia.template,

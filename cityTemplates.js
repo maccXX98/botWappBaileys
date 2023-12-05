@@ -140,7 +140,7 @@ module.exports = {
   
   *¿En qué horario podría recibir su pedido y en que dirección?* 😄
   
-  _Si su dirección no se encuentra en la lista, podemos coordinar el punto más cercano_ 👍 `,
+  _Si su dirección no se encuentra en la lista, podemos coordinar el punto más cercano_ 👍`,
   elalto: `En El Alto, hacemos entregas en estaciones de *Teleférico*:
 
   🟣 Línea Morada: 6 de Marzo (cuartel ingavi)
