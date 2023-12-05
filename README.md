@@ -1,5 +1,5 @@
 # tools
--node version 16.16.0
+-node version 16.16.0 or more
 
 # install project
 npm install || npm install --force
