@@ -11,7 +11,6 @@ dist
 dist-ssr
 *.local
 log.json
-token.json
 
 # Editor directories and files
 .vscode/*
@@ -25,6 +24,8 @@ token.json
 *.sw?
 .env
 package-lock.json
+credentials.json
+token.json
 
 # Ignorar la carpeta images
 /images/
