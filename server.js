@@ -5,12 +5,11 @@ const log = require("pino");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
-const { authorize, productsList, citiesList } = require("./googleAPI.js");
+const { productsList, citiesList } = require("./googleSpreadsheet");
 
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
-
 const app = express();
 const server = createServer(app);
 const port = process.env.PORT || 8080;
@@ -38,9 +37,17 @@ const connectToWhatsApp = async () => {
 };
 
 const deleteFolder = async (folderPath) => {
-  fs.existsSync(folderPath)
-    ? (fs.rmSync(folderPath, { recursive: true, force: true }), console.log(`Carpeta session_auth_info eliminada`))
-    : console.log(`La carpeta session_auth_info no existe`);
+  try {
+    await fs.access(folderPath);
+    await fs.rm(folderPath, { recursive: true, force: true });
+    console.log(`Carpeta session_auth_info eliminada`);
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      console.log(`La carpeta session_auth_info no existe`);
+    } else {
+      throw error;
+    }
+  }
 };
 
 const handleDisconnection = async (message) => {
@@ -89,21 +96,19 @@ const handleMessageUpsert = async ({ messages, type }) => {
       const messageText = message?.message?.extendedTextMessage?.text || "";
       const clientNumber = message?.key?.remoteJid;
 
-      const auth = await authorize();
-      const data = await productsList(auth);
-      const rowDataProduct = data.find((row) => row.urls.includes(sourceUrl + messageBodyUrl + messageBodyText));
+      const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
+      const rowDataProduct = productData.find((data) => data !== null);
 
       if (rowDataProduct) {
-        let product = rowDataProduct.product;
-        let templateAndMedia = { template: rowDataProduct.template, media: rowDataProduct.image };
-
-        if (templateAndMedia) {
-          await sendMessage(clientNumber, templateAndMedia, product);
-          setTimeout(async () => {
-            await sock.sendMessage(clientNumber, { text: city });
-            lastMessages[clientNumber] = "next";
-          }, 2000);
-        }
+        await sendMessage(
+          clientNumber,
+          { template: rowDataProduct.template, media: rowDataProduct.image },
+          rowDataProduct.product
+        );
+        setTimeout(async () => {
+          await sock.sendMessage(clientNumber, { text: city });
+          lastMessages[clientNumber] = "next";
+        }, 1000);
       } else if (lastMessages[clientNumber] === "next") {
         let words;
         if (messageBodyText) {
@@ -113,16 +118,14 @@ const handleMessageUpsert = async ({ messages, type }) => {
           const symbolFreeMessageText = messageText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
           words = symbolFreeMessageText.split(/\s+/);
         }
-        const auth = await authorize();
-        const cityData = await citiesList(auth);
-        const rowDataCity = cityData.find((row) => row.variations.some((variation) => words.includes(variation)));
+        const cityData = await Promise.all(words.map((word) => citiesList(word)));
+        const rowDataCity = cityData.flat().find((data) => data !== null);
         if (rowDataCity) {
-          let cityName = rowDataCity.city;
-          let templateAndMedia = { template: rowDataCity.template, media: rowDataCity.image };
-
-          if (templateAndMedia) {
-            await sendMessage(clientNumber, templateAndMedia, cityName);
-          }
+          await sendMessage(
+            clientNumber,
+            { template: rowDataCity.template, media: rowDataCity.image },
+            rowDataCity.city
+          );
           lastMessages[clientNumber] = "";
         }
       }
@@ -143,18 +146,19 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
   console.log(logData[3]);
 
-  fs.readFile("log.json", (err, data) => {
-    if (err) throw err;
+  try {
     let json = [];
-    if (data.length !== 0) {
+    try {
+      const data = await fs.readFile("log.json");
       json = JSON.parse(data);
+    } catch (err) {
+      console.error(err);
     }
     json.push(logData);
-
-    fs.writeFile("log.json", JSON.stringify(json), (err) => {
-      if (err) throw err;
-    });
-  });
+    await fs.writeFile("log.json", JSON.stringify(json));
+  } catch (err) {
+    console.error(err);
+  }
 
   const image = { url: templateAndMedia.media };
   await sock.sendMessage(clientNumber, {
