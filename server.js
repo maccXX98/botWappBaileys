@@ -146,20 +146,6 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
   console.log(logData[3]);
 
-  try {
-    let json = [];
-    try {
-      const data = await fs.readFile("log.json");
-      json = JSON.parse(data);
-    } catch (err) {
-      console.error(err);
-    }
-    json.push(logData);
-    await fs.writeFile("log.json", JSON.stringify(json));
-  } catch (err) {
-    console.error(err);
-  }
-
   const image = { url: templateAndMedia.media };
   await sock.sendMessage(clientNumber, {
     image: image,
