@@ -12,13 +12,11 @@
   "author": "Mauro Castillo",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/local-auth": "*",
     "@whiskeysockets/baileys": "*",
     "dotenv": "*",
     "eslint": "*",
     "express": "*",
-    "google-spreadsheet": "^4.1.1",
-    "googleapis": "*",
+    "google-spreadsheet": "*",
     "qrcode-terminal": "*",
     "socket.io": "*"
   }

@@ -46,7 +46,7 @@ const urlToTemplateAndMedia = {
   bell: {
     template: productTemplate.bell,
     media: {
-      url: "https://www.novex.com.bo/wp-content/uploads/2023/11/timbre.png",
+      url: "https://www.novex.com.bo/wp-content/uploads/2023/12/oneBell.jpeg",
     },
   },
   triangulePanels5: {

@@ -129,8 +129,7 @@ Precio en combo Bs. 329`,
   * Resistente al agua y al polvo
   ___________________________
   Presentaciones:
-  1 timbre con 1 bocina *Precio Bs. 159*
-  1 timbre con 2 bocinas *Precio Bs. 220*`,
+  1 timbre con 1 bocina *Precio Bs. 159*`,
   triangulePanels5: `Nos preguntaste por los Paneles Acústicos de 5cm! 🔇🎵
   ──────────────────
   Principales características 🧏🏽‍♂️
