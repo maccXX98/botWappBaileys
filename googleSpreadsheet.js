@@ -22,7 +22,7 @@ async function fetchData(sheetTitle, target, callback) {
 async function productsList(targetUrl) {
   try {
     return await fetchData("products", targetUrl, (row, index, targetUrl_1) => {
-      const urls = row.get("URLs").split(",");
+      const urls = row.get("URLs") ? row.get("URLs").split(",") : [];
 
       return urls.includes(targetUrl_1)
         ? {
@@ -33,9 +33,11 @@ async function productsList(targetUrl) {
         : null;
     });
   } catch (message) {
-    return console.error(message);
+    console.error(message);
+    return [];
   }
 }
+
 
 async function citiesList(targetCity) {
   try {
