@@ -8,12 +8,12 @@ const bodyParser = require("body-parser");
 const fs = require("fs").promises;
 const path = require("path");
 const { productsList, citiesList } = require("./googleSpreadsheet");
-
-const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 const app = express();
 const server = createServer(app);
-const port = process.env.PORT || 8080;
+const port = process.env.PORT;
+const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -118,15 +118,18 @@ const handleMessageUpsert = async ({ messages, type }) => {
           const symbolFreeMessageText = messageText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
           words = symbolFreeMessageText.split(/\s+/);
         }
-        const cityData = await Promise.all(words.map((word) => citiesList(word)));
-        const rowDataCity = cityData.flat().find((data) => data !== null);
-        if (rowDataCity) {
-          await sendMessage(
-            clientNumber,
-            { template: rowDataCity.template, media: rowDataCity.image },
-            rowDataCity.city
-          );
-          lastMessages[clientNumber] = "";
+
+        if (words) {
+          const cityData = await Promise.all(words.map((word) => citiesList(word)));
+          const rowDataCity = cityData.flat().find((data) => data !== null);
+          if (rowDataCity) {
+            await sendMessage(
+              clientNumber,
+              { template: rowDataCity.template, media: rowDataCity.image },
+              rowDataCity.city
+            );
+            lastMessages[clientNumber] = "";
+          }
         }
       }
     }
