@@ -142,11 +142,10 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   const logData = [
     ++count,
     logMessage,
-    new Date(new Date().getTime() + new Date().getTimezoneOffset() * 60000 - 4 * 60 * 60000).toLocaleTimeString(),
     clientNumber.replace("@s.whatsapp.net", ""),
   ];
 
-  console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
+  console.log(`${logData[0]} / ${logData[1]}`);
   console.log(logData[3]);
 
   const image = { url: templateAndMedia.media };
