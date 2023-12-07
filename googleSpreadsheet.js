@@ -1,5 +1,4 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
-require("dotenv").config();
 
 async function fetchData(sheetTitle, target, callback) {
   try {
