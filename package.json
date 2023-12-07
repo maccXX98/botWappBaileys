@@ -4,7 +4,7 @@
   "description": "whatsapp bot / apis",
   "main": "server.js",
   "scripts": {
-    "start": "forever start server.js"
+    "start": "npx forever start server.js"
   },
   "keywords": [
     "whastapp"
@@ -12,12 +12,13 @@
   "author": "Mauro Castillo",
   "license": "ISC",
   "dependencies": {
-    "@whiskeysockets/baileys": "*",
-    "eslint": "*",
-    "express": "*",
-    "google-spreadsheet": "*",
-    "qrcode-terminal": "*",
-    "socket.io": "*",
-    "forever": "*"
+    "@whiskeysockets/baileys": "6.5.0",
+    "eslint": "8.55.0",
+    "express": "4.18.2",
+    "google-spreadsheet": "4.1.1",
+    "qrcode-terminal": "0.12.0",
+    "socket.io": "4.7.2",
+    "dotenv": "^16.3.1",
+    "forever": "^4.0.3"
   }
 }
