@@ -1,6 +1,5 @@
 const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require("@whiskeysockets/baileys");
 const { Boom } = require("@hapi/boom");
-const { createServer } = require("http");
 const log = require("pino");
 const express = require("express");
 const cors = require("cors");
@@ -9,8 +8,6 @@ const fs = require("fs").promises;
 const path = require("path");
 const { productsList, citiesList, paymentList } = require("./googleSpreadsheet");
 const app = express();
-const server = createServer(app);
-const port = process.env.PORT ?? 8080;
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -179,4 +176,3 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
 };
 
 connectToWhatsApp();
-server.listen(port, () => {});
