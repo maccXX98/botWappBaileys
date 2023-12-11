@@ -1,4 +1,5 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
+require("dotenv").config();
 
 async function fetchData(sheetTitle, target, callback) {
   try {
@@ -37,7 +38,6 @@ async function productsList(targetUrl) {
   }
 }
 
-
 async function citiesList(targetCity) {
   try {
     return await fetchData("cities", targetCity, (row, index, targetCity_1) => {
@@ -56,4 +56,22 @@ async function citiesList(targetCity) {
   }
 }
 
-module.exports = { productsList, citiesList };
+async function paymentList(targetPayment) {
+  try {
+    return await fetchData("payments", targetPayment, (row, index, targetPayment_1) => {
+      const variations = row.get("Variations").split(",");
+
+      return variations.includes(targetPayment_1)
+        ? {
+            metod: row.get("Metod"),
+            template: row.get("Template"),
+            image: row.get("Image"),
+          }
+        : null;
+    });
+  } catch (message) {
+    return console.error(message);
+  }
+}
+
+module.exports = { productsList, citiesList, paymentList };
