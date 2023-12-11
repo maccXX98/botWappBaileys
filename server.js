@@ -7,10 +7,10 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const fs = require("fs").promises;
 const path = require("path");
-const { productsList, citiesList } = require("./googleSpreadsheet");
+const { productsList, citiesList, paymentList } = require("./googleSpreadsheet");
 const app = express();
 const server = createServer(app);
-const port = process.env.PORT;
+const port = process.env.PORT ?? 8080;
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -19,7 +19,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 let sock;
-
 const reconnect = () => {
   connectToWhatsApp();
 };
@@ -85,7 +84,7 @@ const handleConnectionUpdate = async (update) => {
 
 let lastMessages = {};
 let count = 0;
-
+let logs = [];
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -93,8 +92,25 @@ const handleMessageUpsert = async ({ messages, type }) => {
       const sourceUrl = message?.message?.extendedTextMessage?.contextInfo?.externalAdReply?.sourceUrl || "";
       const messageBodyUrl = message?.message?.extendedTextMessage?.matchedText || "";
       const messageBodyText = message?.message?.conversation || "";
+      const symbolFreeMessageBody = messageBodyText
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[\.,\?¡!¿]/g, "");
       const messageText = message?.message?.extendedTextMessage?.text || "";
+      const symbolFreeMessageText = messageText
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[\.,\?¡!¿]/g, "");
       const clientNumber = message?.key?.remoteJid;
+
+      let words;
+      if (messageBodyText) {
+        words = symbolFreeMessageBody.split(/\s+/);
+      } else if (messageText) {
+        words = symbolFreeMessageText.split(/\s+/);
+      }
 
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
       const rowDataProduct = productData.find((data) => data !== null);
@@ -107,18 +123,9 @@ const handleMessageUpsert = async ({ messages, type }) => {
         );
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, { text: city });
-          lastMessages[clientNumber] = "next";
+          lastMessages[clientNumber] = "citySent";
         }, 1000);
-      } else if (lastMessages[clientNumber] === "next") {
-        let words;
-        if (messageBodyText) {
-          const symbolFreeMessageBody = messageBodyText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
-          words = symbolFreeMessageBody.split(/\s+/);
-        } else if (messageText) {
-          const symbolFreeMessageText = messageText.toLowerCase().replace(/[\.,\?¡!¿]/g, "");
-          words = symbolFreeMessageText.split(/\s+/);
-        }
-
+      } else if (lastMessages[clientNumber] === "citySent") {
         if (words) {
           const cityData = await Promise.all(words.map((word) => citiesList(word)));
           const rowDataCity = cityData.flat().find((data) => data !== null);
@@ -127,6 +134,19 @@ const handleMessageUpsert = async ({ messages, type }) => {
               clientNumber,
               { template: rowDataCity.template, media: rowDataCity.image },
               rowDataCity.city
+            );
+            lastMessages[clientNumber] = "paymentNext";
+          }
+        }
+      } else if (lastMessages[clientNumber] === "paymentNext") {
+        if (words) {
+          const paymentData = await Promise.all(words.map((word) => paymentList(word)));
+          const rowDataPayment = paymentData.flat().find((data) => data !== null);
+          if (rowDataPayment) {
+            await sendMessage(
+              clientNumber,
+              { template: rowDataPayment.template, media: rowDataPayment.image },
+              rowDataPayment.metod
             );
             lastMessages[clientNumber] = "";
           }
@@ -138,21 +158,24 @@ const handleMessageUpsert = async ({ messages, type }) => {
   }
 };
 
+fs.readFile("logs.json", "utf8")
+  .then((data) => ((logs = JSON.parse(data)), (count = logs.length)))
+  .catch((error) =>
+    error.code === "ENOENT" ? console.log("No logs found, starting new.") : console.error("Error reading logs:", error)
+  );
+
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
-  const logData = [
-    ++count,
-    logMessage,
-    clientNumber.replace("@s.whatsapp.net", ""),
-  ];
-
-  console.log(`${logData[0]} / ${logData[1]}`);
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const laPazTime = new Date(utc + 3600000 * -3);
+  const timeString = laPazTime.toISOString().slice(11, 19);
+  const logData = [++count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
+  logs.push(logData);
+  await fs.writeFile("logs.json", JSON.stringify(logs, null, 2));
+  console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
   console.log(logData[3]);
-
   const image = { url: templateAndMedia.media };
-  await sock.sendMessage(clientNumber, {
-    image: image,
-    caption: templateAndMedia.template,
-  });
+  await sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
 };
 
 connectToWhatsApp();
