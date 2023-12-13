@@ -9,17 +9,14 @@ const path = require("path");
 const { productsList, citiesList, paymentList } = require("./googleSpreadsheet");
 const app = express();
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
-
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 let sock;
 const reconnect = () => {
   connectToWhatsApp();
 };
-
 const connectToWhatsApp = async () => {
   const { state: e, saveCreds: s } = await useMultiFileAuthState("session_auth_info");
   (sock = makeWASocket({
@@ -31,7 +28,6 @@ const connectToWhatsApp = async () => {
     sock.ev.on("messages.upsert", handleMessageUpsert),
     sock.ev.on("creds.update", s);
 };
-
 const deleteFolder = async (folderPath) => {
   try {
     await fs.access(folderPath);
@@ -45,14 +41,12 @@ const deleteFolder = async (folderPath) => {
     }
   }
 };
-
 const handleDisconnection = async (message) => {
   console.log(message);
   await deleteFolder(path.join(__dirname, "session_auth_info"));
   sock?.state === "open" && sock.logout();
   connectToWhatsApp().catch((err) => console.log("unexpected error: " + err));
 };
-
 const handleConnectionUpdate = async (update) => {
   const { connection, lastDisconnect } = update;
   if (connection === "close") {
@@ -78,10 +72,8 @@ const handleConnectionUpdate = async (update) => {
     console.log("device connected");
   }
 };
-
 let lastMessages = {};
 let count = 0;
-
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -101,20 +93,17 @@ const handleMessageUpsert = async ({ messages, type }) => {
         .toLowerCase()
         .replace(/[\.,\?¡!¿]/g, "");
       const clientNumber = message?.key?.remoteJid;
-
       let words;
       if (messageBodyText) {
         words = symbolFreeMessageBody.split(/\s+/);
       } else if (messageText) {
         words = symbolFreeMessageText.split(/\s+/);
       }
-
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
       let rowDataProduct = null;
       if (productData) {
         rowDataProduct = productData.find((data) => data !== null);
       }
-
       if (rowDataProduct) {
         await sendMessage(
           clientNumber,
@@ -163,7 +152,6 @@ const handleMessageUpsert = async ({ messages, type }) => {
     console.error("Error in handleMessageUpsert: ", error);
   }
 };
-
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   const now = new Date();
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -175,5 +163,4 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   const image = { url: templateAndMedia.media };
   await sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
 };
-
 connectToWhatsApp();

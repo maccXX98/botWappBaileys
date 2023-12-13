@@ -1,5 +1,4 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
-
 async function fetchData(sheetTitle, target, callback) {
   try {
     const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_ID, {
@@ -17,7 +16,6 @@ async function fetchData(sheetTitle, target, callback) {
     console.error("Error in fetchData:", error);
   }
 }
-
 async function productsList(targetUrl) {
   try {
     return await fetchData("products", targetUrl, (row, index, targetUrl_1) => {
@@ -36,7 +34,6 @@ async function productsList(targetUrl) {
   }
   return [];
 }
-
 async function citiesList(targetCity) {
   try {
     return await fetchData("cities", targetCity, (row, index, targetCity_1) => {
@@ -55,7 +52,6 @@ async function citiesList(targetCity) {
   }
   return [];
 }
-
 async function paymentList(targetPayment) {
   try {
     return await fetchData("payments", targetPayment, (row, index, targetPayment_1) => {
@@ -74,5 +70,4 @@ async function paymentList(targetPayment) {
   }
   return [];
 }
-
 module.exports = { productsList, citiesList, paymentList };
