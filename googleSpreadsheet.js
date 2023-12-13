@@ -33,8 +33,8 @@ async function productsList(targetUrl) {
     });
   } catch (message) {
     console.error(message);
-    return [];
   }
+  return [];
 }
 
 async function citiesList(targetCity) {
@@ -51,8 +51,9 @@ async function citiesList(targetCity) {
         : null;
     });
   } catch (message) {
-    return console.error(message);
+    console.error(message);
   }
+  return [];
 }
 
 async function paymentList(targetPayment) {
@@ -69,8 +70,9 @@ async function paymentList(targetPayment) {
         : null;
     });
   } catch (message) {
-    return console.error(message);
+    console.error(message);
   }
+  return [];
 }
 
 module.exports = { productsList, citiesList, paymentList };

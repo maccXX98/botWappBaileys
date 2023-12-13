@@ -110,7 +110,10 @@ const handleMessageUpsert = async ({ messages, type }) => {
       }
 
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
-      const rowDataProduct = productData.find((data) => data !== null);
+      let rowDataProduct = null;
+      if (productData) {
+        rowDataProduct = productData.find((data) => data !== null);
+      }
 
       if (rowDataProduct) {
         await sendMessage(
@@ -125,7 +128,10 @@ const handleMessageUpsert = async ({ messages, type }) => {
       } else if (lastMessages[clientNumber] === "citySent") {
         if (words) {
           const cityData = await Promise.all(words.map((word) => citiesList(word)));
-          const rowDataCity = cityData.flat().find((data) => data !== null);
+          let rowDataCity = null;
+          if (cityData) {
+            rowDataCity = cityData.flat().find((data) => data !== null);
+          }
           if (rowDataCity) {
             await sendMessage(
               clientNumber,
@@ -138,7 +144,10 @@ const handleMessageUpsert = async ({ messages, type }) => {
       } else if (lastMessages[clientNumber] === "paymentNext") {
         if (words) {
           const paymentData = await Promise.all(words.map((word) => paymentList(word)));
-          const rowDataPayment = paymentData.flat().find((data) => data !== null);
+          let rowDataPayment = null;
+          if (paymentData) {
+            rowDataPayment = paymentData.flat().find((data) => data !== null);
+          }
           if (rowDataPayment) {
             await sendMessage(
               clientNumber,
