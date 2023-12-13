@@ -74,6 +74,7 @@ const handleConnectionUpdate = async (update) => {
 };
 let lastMessages = {};
 let count = 0;
+let lastProductSent = {};
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -93,23 +94,27 @@ const handleMessageUpsert = async ({ messages, type }) => {
         .toLowerCase()
         .replace(/[\.,\?¡!¿]/g, "");
       const clientNumber = message?.key?.remoteJid;
+
       let words;
       if (messageBodyText) {
         words = symbolFreeMessageBody.split(/\s+/);
       } else if (messageText) {
         words = symbolFreeMessageText.split(/\s+/);
       }
+
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
       let rowDataProduct = null;
       if (productData) {
         rowDataProduct = productData.find((data) => data !== null);
       }
-      if (rowDataProduct) {
+
+      if (rowDataProduct && lastProductSent[clientNumber] !== rowDataProduct.product) {
         await sendMessage(
           clientNumber,
           { template: rowDataProduct.template, media: rowDataProduct.image },
           rowDataProduct.product
         );
+        lastProductSent[clientNumber] = rowDataProduct.product;
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, { text: city });
           lastMessages[clientNumber] = "citySent";
@@ -127,7 +132,9 @@ const handleMessageUpsert = async ({ messages, type }) => {
               { template: rowDataCity.template, media: rowDataCity.image },
               rowDataCity.city
             );
-            lastMessages[clientNumber] = "paymentNext";
+            lastMessages[clientNumber] = ["lapaz", "elalto"].includes(rowDataCity.city)
+              ? ""
+              : lastMessages[clientNumber];
           }
         }
       } else if (lastMessages[clientNumber] === "paymentNext") {
