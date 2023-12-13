@@ -81,7 +81,7 @@ const handleConnectionUpdate = async (update) => {
 
 let lastMessages = {};
 let count = 0;
-let logs = [];
+
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -155,20 +155,12 @@ const handleMessageUpsert = async ({ messages, type }) => {
   }
 };
 
-fs.readFile("logs.json", "utf8")
-  .then((data) => ((logs = JSON.parse(data)), (count = logs.length)))
-  .catch((error) =>
-    error.code === "ENOENT" ? console.log("No logs found, starting new.") : console.error("Error reading logs:", error)
-  );
-
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   const now = new Date();
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
   const laPazTime = new Date(utc + 3600000 * -3);
   const timeString = laPazTime.toISOString().slice(11, 19);
   const logData = [++count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
-  logs.push(logData);
-  await fs.writeFile("logs.json", JSON.stringify(logs, null, 2));
   console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
   console.log(logData[3]);
   const image = { url: templateAndMedia.media };
