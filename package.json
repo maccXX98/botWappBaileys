@@ -4,8 +4,8 @@
   "description": "whatsapp bot / apis",
   "main": "server.js",
   "scripts": {
-    "prod:start": "pm2-runtime server.js",
-    "postinstall": "pm2 link iw073xszwgivwbe a71wncg2zn0q4f1 && pm2 install pm2-server-monit"
+    "prod:start": "pm2 start server.js",
+    "postinstall": "pm2 link iw073xszwgivwbe a71wncg2zn0q4f1"
   },
   "keywords": [
     "whatsapp",
