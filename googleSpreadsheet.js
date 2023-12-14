@@ -1,4 +1,9 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
+
+let productsData = [];
+let citiesData = [];
+let paymentsData = [];
+
 async function fetchData(sheetTitle, target, callback) {
   try {
     const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_ID, {
@@ -16,58 +21,117 @@ async function fetchData(sheetTitle, target, callback) {
     console.error("Error in fetchData:", error);
   }
 }
+
 async function productsList(targetUrl) {
   try {
-    return await fetchData("products", targetUrl, (row, index, targetUrl_1) => {
-      const urls = row.get("URLs") ? row.get("URLs").split(",") : [];
+    const product = productsData.find((p) => p && p.product === targetUrl);
+    if (product) {
+      return product;
+    } else {
+      return await fetchData("products", targetUrl, (row, index, targetUrl_1) => {
+        const urls = row.get("URLs") ? row.get("URLs").split(",") : [];
 
-      return urls.includes(targetUrl_1)
-        ? {
-            product: row.get("Product"),
-            template: row.get("Template"),
-            image: row.get("Image"),
-          }
-        : null;
-    });
+        return urls.includes(targetUrl_1)
+          ? {
+              product: row.get("Product"),
+              template: row.get("Template"),
+              image: row.get("Image"),
+            }
+          : null;
+      });
+    }
   } catch (message) {
     console.error(message);
   }
-  return [];
 }
+
 async function citiesList(targetCity) {
   try {
-    return await fetchData("cities", targetCity, (row, index, targetCity_1) => {
-      const variations = row.get("Variations").split(",");
+    const city = citiesData.find((c) => c && c.city === targetCity);
+    if (city) {
+      return city;
+    } else {
+      return await fetchData("cities", targetCity, (row, index, targetCity_1) => {
+        const variations = row.get("Variations").split(",");
 
-      return variations.includes(targetCity_1)
-        ? {
-            city: row.get("City"),
-            template: row.get("Template"),
-            image: row.get("Image"),
-          }
-        : null;
-    });
+        return variations.includes(targetCity_1)
+          ? {
+              city: row.get("City"),
+              template: row.get("Template"),
+              image: row.get("Image"),
+            }
+          : null;
+      });
+    }
   } catch (message) {
     console.error(message);
   }
-  return [];
 }
+
 async function paymentList(targetPayment) {
   try {
-    return await fetchData("payments", targetPayment, (row, index, targetPayment_1) => {
-      const variations = row.get("Variations").split(",");
+    const payment = paymentsData.find((p) => p && p.metod === targetPayment);
+    if (payment) {
+      return payment;
+    } else {
+      return await fetchData("payments", targetPayment, (row, index, targetPayment_1) => {
+        const variations = row.get("Variations").split(",");
 
-      return variations.includes(targetPayment_1)
-        ? {
-            metod: row.get("Metod"),
-            template: row.get("Template"),
-            image: row.get("Image"),
-          }
-        : null;
-    });
+        return variations.includes(targetPayment_1)
+          ? {
+              metod: row.get("Metod"),
+              template: row.get("Template"),
+              image: row.get("Image"),
+            }
+          : null;
+      });
+    }
   } catch (message) {
     console.error(message);
   }
-  return [];
 }
+
+async function loadData() {
+  productsData = await fetchData("products", "", (row, index, targetUrl_1) => {
+    const urls = row.get("URLs") ? row.get("URLs").split(",") : [];
+
+    return urls.length > 0
+      ? {
+          product: row.get("Product"),
+          template: row.get("Template"),
+          image: row.get("Image"),
+        }
+      : null;
+  });
+
+  citiesData = await fetchData("cities", "", (row, index, targetCity_1) => {
+    const variations = row.get("Variations").split(",");
+
+    return variations.length > 0
+      ? {
+          city: row.get("City"),
+          template: row.get("Template"),
+          image: row.get("Image"),
+        }
+      : null;
+  });
+
+  paymentsData = await fetchData("payments", "", (row, index, targetPayment_1) => {
+    const variations = row.get("Variations").split(",");
+    return variations.length > 0
+      ? {
+          metod: row.get("Metod"),
+          template: row.get("Template"),
+          image: row.get("Image"),
+        }
+      : null;
+  });
+}
+
+// Llamas a loadData cuando inicies tu chatbot
+loadData();
+
+// Actualizas los datos cada cierto tiempo (por ejemplo, cada hora)
+setInterval(loadData, 60 * 60 * 1000);
+
 module.exports = { productsList, citiesList, paymentList };
