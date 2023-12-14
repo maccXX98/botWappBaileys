@@ -94,20 +94,17 @@ const handleMessageUpsert = async ({ messages, type }) => {
         .toLowerCase()
         .replace(/[\.,\?¡!¿]/g, "");
       const clientNumber = message?.key?.remoteJid;
-
       let words;
       if (messageBodyText) {
         words = symbolFreeMessageBody.split(/\s+/);
       } else if (messageText) {
         words = symbolFreeMessageText.split(/\s+/);
       }
-
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
       let rowDataProduct = null;
       if (productData) {
         rowDataProduct = productData.find((data) => data !== null);
       }
-
       if (rowDataProduct && lastProductSent[clientNumber] !== rowDataProduct.product) {
         await sendMessage(
           clientNumber,
@@ -134,7 +131,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
             );
             lastMessages[clientNumber] = ["lapaz", "elalto"].includes(rowDataCity.city)
               ? ""
-              : lastMessages[clientNumber];
+              : (lastMessages[clientNumber] = "paymentNext");
           }
         }
       } else if (lastMessages[clientNumber] === "paymentNext") {
