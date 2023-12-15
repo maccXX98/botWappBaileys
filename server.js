@@ -168,10 +168,11 @@ fs.readFile("log.json", "utf8")
   );
 
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
-  const now = new Date();
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  const laPazTime = new Date(utc + 3600000 * -3);
-  const timeString = laPazTime.toISOString().slice(11, 19);
+  let date = new Date();
+  let options = { timeZone: "America/La_Paz", hour: "2-digit", minute: "2-digit", second: "2-digit" };
+  let formatter = new Intl.DateTimeFormat([], options);
+  let timeString = formatter.format(date);
+
   const logData = [++count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
   logs.push(logData);
   await fs.writeFile("log.json", JSON.stringify(logs, null, 2));
@@ -180,4 +181,5 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   const image = { url: templateAndMedia.media };
   await sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
 };
+
 connectToWhatsApp();
