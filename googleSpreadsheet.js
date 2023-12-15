@@ -1,5 +1,5 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
-
+require("dotenv").config();
 async function fetchData(sheetTitle, target, callback) {
   try {
     const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_ID, {
@@ -17,7 +17,6 @@ async function fetchData(sheetTitle, target, callback) {
     console.error("Error in fetchData:", error);
   }
 }
-
 async function productsList(targetUrl) {
   try {
     return await fetchData("products", targetUrl, (row, index, targetUrl_1) => {
@@ -33,10 +32,9 @@ async function productsList(targetUrl) {
     });
   } catch (message) {
     console.error(message);
-    return [];
   }
+  return [];
 }
-
 async function citiesList(targetCity) {
   try {
     return await fetchData("cities", targetCity, (row, index, targetCity_1) => {
@@ -51,10 +49,10 @@ async function citiesList(targetCity) {
         : null;
     });
   } catch (message) {
-    return console.error(message);
+    console.error(message);
   }
+  return [];
 }
-
 async function paymentList(targetPayment) {
   try {
     return await fetchData("payments", targetPayment, (row, index, targetPayment_1) => {
@@ -69,8 +67,8 @@ async function paymentList(targetPayment) {
         : null;
     });
   } catch (message) {
-    return console.error(message);
+    console.error(message);
   }
+  return [];
 }
-
 module.exports = { productsList, citiesList, paymentList };

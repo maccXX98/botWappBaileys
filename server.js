@@ -74,6 +74,8 @@ const handleConnectionUpdate = async (update) => {
 };
 let lastMessages = {};
 let count = 0;
+let logs = [];
+let lastProductSent = {};
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -93,20 +95,27 @@ const handleMessageUpsert = async ({ messages, type }) => {
         .toLowerCase()
         .replace(/[\.,\?¡!¿]/g, "");
       const clientNumber = message?.key?.remoteJid;
+
       let words;
       if (messageBodyText) {
         words = symbolFreeMessageBody.split(/\s+/);
       } else if (messageText) {
         words = symbolFreeMessageText.split(/\s+/);
       }
+
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
-      const rowDataProduct = productData.find((data) => data !== null);
-      if (rowDataProduct) {
+      let rowDataProduct = null;
+      if (productData) {
+        rowDataProduct = productData.find((data) => data !== null);
+      }
+
+      if (rowDataProduct && lastProductSent[clientNumber] !== rowDataProduct.product) {
         await sendMessage(
           clientNumber,
           { template: rowDataProduct.template, media: rowDataProduct.image },
           rowDataProduct.product
         );
+        lastProductSent[clientNumber] = rowDataProduct.product;
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, { text: city });
           lastMessages[clientNumber] = "citySent";
@@ -114,20 +123,28 @@ const handleMessageUpsert = async ({ messages, type }) => {
       } else if (lastMessages[clientNumber] === "citySent") {
         if (words) {
           const cityData = await Promise.all(words.map((word) => citiesList(word)));
-          const rowDataCity = cityData.flat().find((data) => data !== null);
+          let rowDataCity = null;
+          if (cityData) {
+            rowDataCity = cityData.flat().find((data) => data !== null);
+          }
           if (rowDataCity) {
             await sendMessage(
               clientNumber,
               { template: rowDataCity.template, media: rowDataCity.image },
               rowDataCity.city
             );
-            lastMessages[clientNumber] = "paymentNext";
+            lastMessages[clientNumber] = ["lapaz", "elalto"].includes(rowDataCity.city)
+              ? ""
+              : (lastMessages[clientNumber] = "paymentNext");
           }
         }
       } else if (lastMessages[clientNumber] === "paymentNext") {
         if (words) {
           const paymentData = await Promise.all(words.map((word) => paymentList(word)));
-          const rowDataPayment = paymentData.flat().find((data) => data !== null);
+          let rowDataPayment = null;
+          if (paymentData) {
+            rowDataPayment = paymentData.flat().find((data) => data !== null);
+          }
           if (rowDataPayment) {
             await sendMessage(
               clientNumber,
@@ -143,16 +160,24 @@ const handleMessageUpsert = async ({ messages, type }) => {
     console.error("Error in handleMessageUpsert: ", error);
   }
 };
+
+fs.readFile("log.json", "utf8")
+  .then((data) => ((logs = JSON.parse(data)), (count = logs.length)))
+  .catch((error) =>
+    error.code === "ENOENT" ? console.log("No logs found, starting new.") : console.error("Error reading logs:", error)
+  );
+
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   const now = new Date();
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
   const laPazTime = new Date(utc + 3600000 * -3);
   const timeString = laPazTime.toISOString().slice(11, 19);
   const logData = [++count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
+  logs.push(logData);
+  await fs.writeFile("log.json", JSON.stringify(logs, null, 2));
   console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
   console.log(logData[3]);
   const image = { url: templateAndMedia.media };
   await sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
 };
-
 connectToWhatsApp();
