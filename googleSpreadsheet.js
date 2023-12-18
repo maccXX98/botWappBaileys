@@ -1,17 +1,13 @@
 const { GoogleSpreadsheet } = require("google-spreadsheet");
 require("dotenv").config();
+const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_ID, {
+  apiKey: process.env.GOOGLE_API_KEY,
+});
 async function fetchData(sheetTitle, target, callback) {
   try {
-    const doc = new GoogleSpreadsheet(process.env.SPREADSHEET_ID, {
-      apiKey: process.env.GOOGLE_API_KEY,
-    });
-
     await doc.loadInfo();
-
     const sheet = doc.sheetsByTitle[sheetTitle];
-
     const rows = await sheet.getRows();
-
     return rows.map((row, index) => callback(row, index, target));
   } catch (error) {
     console.error("Error in fetchData:", error);

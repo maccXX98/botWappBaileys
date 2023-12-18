@@ -76,6 +76,14 @@ let lastMessages = {};
 let count = 0;
 let logs = [];
 let lastProductSent = {};
+const normalizeAndSplit = (text) => {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[\.,\?¡!¿]/g, "")
+    .split(/\s+/);
+};
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -83,25 +91,10 @@ const handleMessageUpsert = async ({ messages, type }) => {
       const sourceUrl = message?.message?.extendedTextMessage?.contextInfo?.externalAdReply?.sourceUrl || "";
       const messageBodyUrl = message?.message?.extendedTextMessage?.matchedText || "";
       const messageBodyText = message?.message?.conversation || "";
-      const symbolFreeMessageBody = messageBodyText
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[\.,\?¡!¿]/g, "");
       const messageText = message?.message?.extendedTextMessage?.text || "";
-      const symbolFreeMessageText = messageText
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[\.,\?¡!¿]/g, "");
       const clientNumber = message?.key?.remoteJid;
 
-      let words;
-      if (messageBodyText) {
-        words = symbolFreeMessageBody.split(/\s+/);
-      } else if (messageText) {
-        words = symbolFreeMessageText.split(/\s+/);
-      }
+      const words = normalizeAndSplit(messageBodyText || messageText);
 
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
       let rowDataProduct = null;
