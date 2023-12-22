@@ -76,6 +76,7 @@ let lastMessages = {};
 let count = 0;
 let logs = [];
 let lastProductSent = {};
+let processing = {};
 const normalizeAndSplit = (text) => {
   return text
     .normalize("NFD")
@@ -101,17 +102,24 @@ const handleMessageUpsert = async ({ messages, type }) => {
       if (productData) {
         rowDataProduct = productData.find((data) => data !== null);
       }
-
-      if (rowDataProduct && lastProductSent[clientNumber] !== rowDataProduct.product) {
+      if (
+        rowDataProduct &&
+        lastProductSent[clientNumber] !== rowDataProduct.product &&
+        !messageInProcess[clientNumber] &&
+        !processing[clientNumber]
+      ) {
+        processing[clientNumber] = messageInProcess[clientNumber] = true;
         await sendMessage(
           clientNumber,
           { template: rowDataProduct.template, media: rowDataProduct.image },
           rowDataProduct.product
         );
         lastProductSent[clientNumber] = rowDataProduct.product;
+        messageInProcess[clientNumber] = false;
         setTimeout(async () => {
           await sock.sendMessage(clientNumber, { text: city });
           lastMessages[clientNumber] = "citySent";
+          processing[clientNumber] = false;
         }, 1000);
       } else if (lastMessages[clientNumber] === "citySent") {
         if (words) {
@@ -153,19 +161,16 @@ const handleMessageUpsert = async ({ messages, type }) => {
     console.error("Error in handleMessageUpsert: ", error);
   }
 };
-
 fs.readFile("log.json", "utf8")
   .then((data) => ((logs = JSON.parse(data)), (count = logs.length)))
   .catch((error) =>
     error.code === "ENOENT" ? console.log("No logs found, starting new.") : console.error("Error reading logs:", error)
   );
-
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   let date = new Date();
   let options = { timeZone: "America/La_Paz", hour: "2-digit", minute: "2-digit", second: "2-digit" };
   let formatter = new Intl.DateTimeFormat([], options);
   let timeString = formatter.format(date);
-
   const logData = [++count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
   logs.push(logData);
   await fs.writeFile("log.json", JSON.stringify(logs, null, 2));
@@ -174,5 +179,4 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   const image = { url: templateAndMedia.media };
   await sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
 };
-
 connectToWhatsApp();
