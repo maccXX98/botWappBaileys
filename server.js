@@ -77,6 +77,7 @@ let count = 0;
 let logs = [];
 let lastProductSent = {};
 let processing = {};
+let messageInProcess = {};
 const normalizeAndSplit = (text) => {
   return text
     .normalize("NFD")
