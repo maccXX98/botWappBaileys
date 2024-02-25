@@ -1,18 +1,19 @@
 const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require("@whiskeysockets/baileys");
 const { Boom } = require("@hapi/boom");
 const log = require("pino");
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
+const fastify = require("fastify")({ logger: true });
+const cors = require("@fastify/cors");
 const fs = require("fs").promises;
 const path = require("path");
 const { productsList, citiesList, paymentList } = require("./googleSpreadsheet");
-const app = express();
+
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
-app.use(express.static(path.join(__dirname, "public")));
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+
+fastify.register(cors);
+fastify.register(require("@fastify/static"), {
+  root: path.join(__dirname, "public"),
+});
+
 let sock;
 const reconnect = () => {
   connectToWhatsApp();
@@ -181,3 +182,5 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   await sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
 };
 connectToWhatsApp();
+
+fastify.listen({ port: process.env.PORT || 8080 });
