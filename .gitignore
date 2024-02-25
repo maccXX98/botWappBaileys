@@ -27,6 +27,7 @@ package-lock.json
 credentials.json
 token.json
 testproductsnovex-40c092be4648.json
+pnpm-lock.yaml
 
 # Ignorar la carpeta images
 /images/
