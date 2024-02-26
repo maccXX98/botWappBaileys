@@ -14,15 +14,16 @@
   "author": "Mauro Castillo",
   "license": "ISC",
   "dependencies": {
-    "@fastify/cors": "*",
-    "@whiskeysockets/baileys": "*",
-    "dotenv": "*",
-    "eslint": "*",
     "fastify": "*",
+    "@fastify/cors": "*",
+    "@fastify/static": "*",
+    "@hapi/boom": "*",
+    "eslint": "*",
+    "pino": "*",
+    "dotenv": "*",
+    "@whiskeysockets/baileys": "*",
     "google-spreadsheet": "*",
     "qrcode-terminal": "*",
-    "pino": "*",
-    "@hapi/boom": "*",
     "socket.io": "*"
   }
 }

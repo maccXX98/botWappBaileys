@@ -5,13 +5,12 @@ const fastify = require("fastify")({ logger: true });
 const cors = require("@fastify/cors");
 const fs = require("fs").promises;
 const path = require("path");
-const { productsList, citiesList, paymentList } = require("./googleSpreadsheet");
-
+const { productsList, citiesList, paymentList, updateVariables } = require("./googleSpreadsheet");
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
 fastify.register(cors);
 fastify.register(require("@fastify/static"), {
-  root: path.join(__dirname, "public"),
+  root: path.join(__dirname),
 });
 
 let sock;
@@ -73,12 +72,15 @@ const handleConnectionUpdate = async (update) => {
     console.log("device connected");
   }
 };
+
 let lastMessages = {};
 let count = 0;
 let logs = [];
 let lastProductSent = {};
 let processing = {};
 let messageInProcess = {};
+let messageTimer = null;
+let messagePerMinute = null;
 const normalizeAndSplit = (text) => {
   return text
     .normalize("NFD")
@@ -87,6 +89,14 @@ const normalizeAndSplit = (text) => {
     .replace(/[\.,\?¡!¿]/g, "")
     .split(/\s+/);
 };
+
+async function logTimers() {
+  const timers = await updateVariables();
+  messageTimer = timers.messageTimer;
+  messagePerMinute = timers.messagePerMinute;
+}
+logTimers();
+
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -111,19 +121,21 @@ const handleMessageUpsert = async ({ messages, type }) => {
         !processing[clientNumber]
       ) {
         processing[clientNumber] = messageInProcess[clientNumber] = true;
-        await sendMessage(
-          clientNumber,
-          { template: rowDataProduct.template, media: rowDataProduct.image },
-          rowDataProduct.product
-        );
-        lastProductSent[clientNumber] = rowDataProduct.product;
-        messageInProcess[clientNumber] = false;
         setTimeout(async () => {
-          await sock.sendMessage(clientNumber, { text: city });
-          lastMessages[clientNumber] = "citySent";
-          processing[clientNumber] = false;
-        }, 1000);
-      } else if (lastMessages[clientNumber] === "citySent") {
+          await sendMessage(
+            clientNumber,
+            { template: rowDataProduct.template, media: rowDataProduct.image },
+            rowDataProduct.product
+          );
+          lastProductSent[clientNumber] = rowDataProduct.product;
+          messageInProcess[clientNumber] = false;
+          setTimeout(async () => {
+            await sock.sendMessage(clientNumber, { text: city });
+            processing[clientNumber] = false;
+          }, 1000);
+        }, messageTimer * 1000);
+        lastMessages[clientNumber] = "citySend";
+      } else if (lastMessages[clientNumber] === "citySend") {
         if (words) {
           const cityData = await Promise.all(words.map((word) => citiesList(word)));
           let rowDataCity = null;
@@ -131,14 +143,21 @@ const handleMessageUpsert = async ({ messages, type }) => {
             rowDataCity = cityData.flat().find((data) => data !== null);
           }
           if (rowDataCity) {
-            await sendMessage(
-              clientNumber,
-              { template: rowDataCity.template, media: rowDataCity.image },
-              rowDataCity.city
-            );
+            const handleCityMessage = async () => {
+              setTimeout(async () => {
+                await sendMessage(
+                  clientNumber,
+                  { template: rowDataCity.template, media: rowDataCity.image },
+                  rowDataCity.city
+                );
+              }, messageTimer * 1000);
+            };
             lastMessages[clientNumber] = ["lapaz", "elalto"].includes(rowDataCity.city)
               ? ""
               : (lastMessages[clientNumber] = "paymentNext");
+            const timer = (ms) => new Promise((res) => setTimeout(res, ms));
+            await timer(messageTimer * 1000);
+            await handleCityMessage();
           }
         }
       } else if (lastMessages[clientNumber] === "paymentNext") {
@@ -149,25 +168,29 @@ const handleMessageUpsert = async ({ messages, type }) => {
             rowDataPayment = paymentData.flat().find((data) => data !== null);
           }
           if (rowDataPayment) {
-            await sendMessage(
-              clientNumber,
-              { template: rowDataPayment.template, media: rowDataPayment.image },
-              rowDataPayment.metod
-            );
-            lastMessages[clientNumber] = "";
+            setTimeout(async () => {
+              await sendMessage(
+                clientNumber,
+                { template: rowDataPayment.template, media: rowDataPayment.image },
+                rowDataPayment.metod
+              );
+              lastMessages[clientNumber] = "";
+            }, messageTimer * 1000);
           }
         }
       }
     }
   } catch (error) {
-    console.error("Error in handleMessageUpsert: ", error);
+    console.error("Error in MessageSending: ", error);
   }
 };
+
 fs.readFile("log.json", "utf8")
   .then((data) => ((logs = JSON.parse(data)), (count = logs.length)))
   .catch((error) =>
     error.code === "ENOENT" ? console.log("No logs found, starting new.") : console.error("Error reading logs:", error)
   );
+
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   let date = new Date();
   let options = { timeZone: "America/La_Paz", hour: "2-digit", minute: "2-digit", second: "2-digit" };
