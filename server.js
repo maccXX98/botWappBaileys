@@ -6,6 +6,7 @@ const cors = require("@fastify/cors");
 const fs = require("fs").promises;
 const path = require("path");
 const { productsList, citiesList, paymentList, updateVariables } = require("./googleSpreadsheet");
+const state = require("./state.js");
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
 fastify.register(cors);
@@ -72,15 +73,6 @@ const handleConnectionUpdate = async (update) => {
     console.log("device connected");
   }
 };
-
-let lastMessages = {};
-let count = 0;
-let logs = [];
-let lastProductSent = {};
-let processing = {};
-let messageInProcess = {};
-let messageTimer = null;
-let messagePerMinute = null;
 const normalizeAndSplit = (text) => {
   return text
     .normalize("NFD")
@@ -89,14 +81,12 @@ const normalizeAndSplit = (text) => {
     .replace(/[\.,\?¡!¿]/g, "")
     .split(/\s+/);
 };
-
 async function logTimers() {
   const timers = await updateVariables();
-  messageTimer = timers.messageTimer;
-  messagePerMinute = timers.messagePerMinute;
+  state.messageTimer = timers.messageTimer;
+  state.messagePerMinute = timers.messagePerMinute;
 }
 logTimers();
-
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     if (type === "notify" && !messages[0]?.key.fromMe) {
@@ -106,9 +96,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
       const messageBodyText = message?.message?.conversation || "";
       const messageText = message?.message?.extendedTextMessage?.text || "";
       const clientNumber = message?.key?.remoteJid;
-
       const words = normalizeAndSplit(messageBodyText || messageText);
-
       const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
       let rowDataProduct = null;
       if (productData) {
@@ -116,26 +104,26 @@ const handleMessageUpsert = async ({ messages, type }) => {
       }
       if (
         rowDataProduct &&
-        lastProductSent[clientNumber] !== rowDataProduct.product &&
-        !messageInProcess[clientNumber] &&
-        !processing[clientNumber]
+        state.lastProductSent[clientNumber] !== rowDataProduct.product &&
+        !state.messageInProcess[clientNumber] &&
+        !state.processing[clientNumber]
       ) {
-        processing[clientNumber] = messageInProcess[clientNumber] = true;
+        state.processing[clientNumber] = state.messageInProcess[clientNumber] = true;
         setTimeout(async () => {
           await sendMessage(
             clientNumber,
             { template: rowDataProduct.template, media: rowDataProduct.image },
             rowDataProduct.product
           );
-          lastProductSent[clientNumber] = rowDataProduct.product;
-          messageInProcess[clientNumber] = false;
+          state.lastProductSent[clientNumber] = rowDataProduct.product;
+          state.messageInProcess[clientNumber] = false;
           setTimeout(async () => {
             await sock.sendMessage(clientNumber, { text: city });
-            processing[clientNumber] = false;
+            state.processing[clientNumber] = false;
           }, 1000);
-        }, messageTimer * 1000);
-        lastMessages[clientNumber] = "citySend";
-      } else if (lastMessages[clientNumber] === "citySend") {
+        }, state.messageTimer * 1000);
+        state.lastMessages[clientNumber] = "citySend";
+      } else if (state.lastMessages[clientNumber] === "citySend") {
         if (words) {
           const cityData = await Promise.all(words.map((word) => citiesList(word)));
           let rowDataCity = null;
@@ -150,17 +138,17 @@ const handleMessageUpsert = async ({ messages, type }) => {
                   { template: rowDataCity.template, media: rowDataCity.image },
                   rowDataCity.city
                 );
-              }, messageTimer * 1000);
+              }, state.messageTimer * 1000);
             };
-            lastMessages[clientNumber] = ["lapaz", "elalto"].includes(rowDataCity.city)
+            state.lastMessages[clientNumber] = ["lapaz", "elalto"].includes(rowDataCity.city)
               ? ""
-              : (lastMessages[clientNumber] = "paymentNext");
+              : (state.lastMessages[clientNumber] = "paymentNext");
             const timer = (ms) => new Promise((res) => setTimeout(res, ms));
-            await timer(messageTimer * 1000);
+            await timer(state.messageTimer * 1000);
             await handleCityMessage();
           }
         }
-      } else if (lastMessages[clientNumber] === "paymentNext") {
+      } else if (state.lastMessages[clientNumber] === "paymentNext") {
         if (words) {
           const paymentData = await Promise.all(words.map((word) => paymentList(word)));
           let rowDataPayment = null;
@@ -174,8 +162,8 @@ const handleMessageUpsert = async ({ messages, type }) => {
                 { template: rowDataPayment.template, media: rowDataPayment.image },
                 rowDataPayment.metod
               );
-              lastMessages[clientNumber] = "";
-            }, messageTimer * 1000);
+              state.lastMessages[clientNumber] = "";
+            }, state.messageTimer * 1000);
           }
         }
       }
@@ -186,9 +174,9 @@ const handleMessageUpsert = async ({ messages, type }) => {
 };
 
 fs.readFile("log.json", "utf8")
-  .then((data) => ((logs = JSON.parse(data)), (count = logs.length)))
+  .then((data) => ((state.logs = JSON.parse(data)), (state.count = state.logs.length)))
   .catch((error) =>
-    error.code === "ENOENT" ? console.log("No logs found, starting new.") : console.error("Error reading logs:", error)
+    error.code === "ENOENT" ? console.log("No Logs found, starting new.") : console.error("Error reading Logs:", error)
   );
 
 const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
@@ -196,9 +184,9 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
   let options = { timeZone: "America/La_Paz", hour: "2-digit", minute: "2-digit", second: "2-digit" };
   let formatter = new Intl.DateTimeFormat([], options);
   let timeString = formatter.format(date);
-  const logData = [++count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
-  logs.push(logData);
-  await fs.writeFile("log.json", JSON.stringify(logs, null, 2));
+  const logData = [++state.count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
+  state.logs.push(logData);
+  await fs.writeFile("log.json", JSON.stringify(state.logs, null, 2));
   console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
   console.log(logData[3]);
   const image = { url: templateAndMedia.media };
