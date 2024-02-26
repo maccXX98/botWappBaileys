@@ -5,8 +5,11 @@ const fastify = require("fastify")({ logger: true });
 const cors = require("@fastify/cors");
 const fs = require("fs").promises;
 const path = require("path");
-const { productsList, citiesList, paymentList, updateVariables } = require("./googleSpreadsheet");
+const { updateVariables } = require("./googleSpreadsheet");
 const state = require("./state.js");
+const Product = require("./product.class.js");
+const City = require("./city.class.js");
+const Payment = require("./payment.class.js");
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
 fastify.register(cors);
@@ -89,33 +92,25 @@ async function logTimers() {
 logTimers();
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
+    const message = messages[0];
+    const messageBodyText = message?.message?.conversation || "";
+    const messageText = message?.message?.extendedTextMessage?.text || "";
     if (type === "notify" && !messages[0]?.key.fromMe) {
       const message = messages[0];
-      const sourceUrl = message?.message?.extendedTextMessage?.contextInfo?.externalAdReply?.sourceUrl || "";
-      const messageBodyUrl = message?.message?.extendedTextMessage?.matchedText || "";
-      const messageBodyText = message?.message?.conversation || "";
-      const messageText = message?.message?.extendedTextMessage?.text || "";
       const clientNumber = message?.key?.remoteJid;
       const words = normalizeAndSplit(messageBodyText || messageText);
-      const productData = await productsList(sourceUrl + messageBodyUrl + messageBodyText);
-      let rowDataProduct = null;
-      if (productData) {
-        rowDataProduct = productData.find((data) => data !== null);
-      }
+
+      const product = await Product.fromMessage(message);
       if (
-        rowDataProduct &&
-        state.lastProductSent[clientNumber] !== rowDataProduct.product &&
+        product &&
+        state.lastProductSent[clientNumber] !== product.product &&
         !state.messageInProcess[clientNumber] &&
         !state.processing[clientNumber]
       ) {
         state.processing[clientNumber] = state.messageInProcess[clientNumber] = true;
         setTimeout(async () => {
-          await sendMessage(
-            clientNumber,
-            { template: rowDataProduct.template, media: rowDataProduct.image },
-            rowDataProduct.product
-          );
-          state.lastProductSent[clientNumber] = rowDataProduct.product;
+          await sendMessage(clientNumber, { template: product.template, media: product.image }, product.product);
+          state.lastProductSent[clientNumber] = product.product;
           state.messageInProcess[clientNumber] = false;
           setTimeout(async () => {
             await sock.sendMessage(clientNumber, { text: city });
@@ -125,22 +120,14 @@ const handleMessageUpsert = async ({ messages, type }) => {
         state.lastMessages[clientNumber] = "citySend";
       } else if (state.lastMessages[clientNumber] === "citySend") {
         if (words) {
-          const cityData = await Promise.all(words.map((word) => citiesList(word)));
-          let rowDataCity = null;
-          if (cityData) {
-            rowDataCity = cityData.flat().find((data) => data !== null);
-          }
-          if (rowDataCity) {
+          const city = await City.fromWords(words);
+          if (city) {
             const handleCityMessage = async () => {
               setTimeout(async () => {
-                await sendMessage(
-                  clientNumber,
-                  { template: rowDataCity.template, media: rowDataCity.image },
-                  rowDataCity.city
-                );
+                await sendMessage(clientNumber, { template: city.template, media: city.image }, city.city);
               }, state.messageTimer * 1000);
             };
-            state.lastMessages[clientNumber] = ["lapaz", "elalto"].includes(rowDataCity.city)
+            state.lastMessages[clientNumber] = ["lapaz", "elalto"].includes(city.city)
               ? ""
               : (state.lastMessages[clientNumber] = "paymentNext");
             const timer = (ms) => new Promise((res) => setTimeout(res, ms));
@@ -150,18 +137,10 @@ const handleMessageUpsert = async ({ messages, type }) => {
         }
       } else if (state.lastMessages[clientNumber] === "paymentNext") {
         if (words) {
-          const paymentData = await Promise.all(words.map((word) => paymentList(word)));
-          let rowDataPayment = null;
-          if (paymentData) {
-            rowDataPayment = paymentData.flat().find((data) => data !== null);
-          }
-          if (rowDataPayment) {
+          const payment = await Payment.fromWords(words);
+          if (payment) {
             setTimeout(async () => {
-              await sendMessage(
-                clientNumber,
-                { template: rowDataPayment.template, media: rowDataPayment.image },
-                rowDataPayment.metod
-              );
+              await sendMessage(clientNumber, { template: payment.template, media: payment.image }, payment.metod);
               state.lastMessages[clientNumber] = "";
             }, state.messageTimer * 1000);
           }
