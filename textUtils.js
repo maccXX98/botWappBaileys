@@ -1,4 +1,3 @@
-// textUtils.js
 const normalizeAndSplit = (text) => {
   return text
     .normalize("NFD")

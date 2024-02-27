@@ -19,7 +19,6 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
     const image = { url: templateAndMedia.media };
     await state.sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
     messagesSentLastMinute++;
-    console.log(`Mensaje enviado. Total de mensajes enviados en el último minuto: ${messagesSentLastMinute}`);
   } else {
     const messageInQueue = messageQueue.find(
       (message) => message.clientNumber === clientNumber && message.logMessage === logMessage
@@ -31,9 +30,6 @@ const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
         media: templateAndMedia.media,
         logMessage,
       });
-      console.log(
-        `Se alcanzó el límite de mensajes. Mensaje añadido a la cola. Tamaño de la cola: ${messageQueue.length}`
-      );
     }
   }
 };
@@ -43,15 +39,10 @@ setInterval(() => {
     const message = messageQueue.shift();
     sendMessage(message.clientNumber, { template: message.template, media: message.media }, message.logMessage);
     messagesSentLastMinute++;
-    console.log(
-      `Mensaje de la cola enviado. Total de mensajes enviados en el último minuto: ${messagesSentLastMinute}`
-    );
   }
   if (messageQueue.length > 0) {
-    console.log(`La cola aún tiene mensajes. Tamaño de la cola: ${messageQueue.length}`);
   }
   messagesSentLastMinute = 0;
-  console.log(`Se restableció el contador de mensajes enviados.`);
 }, 60000);
 
 module.exports = sendMessage;
