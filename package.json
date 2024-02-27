@@ -1,5 +1,5 @@
 {
-  "name": "baileys_bot_wapp",
+  "name": "baileys_bot_wapp_fastify",
   "version": "1.0.0",
   "description": "whatsapp bot / apis",
   "main": "server.js",
