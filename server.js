@@ -5,11 +5,13 @@ const fastify = require("fastify")({ logger: true });
 const cors = require("@fastify/cors");
 const fs = require("fs").promises;
 const path = require("path");
-const { updateVariables } = require("./googleSpreadsheet");
 const state = require("./state.js");
 const Product = require("./product.class.js");
 const City = require("./city.class.js");
 const Payment = require("./payment.class.js");
+const logTimers = require("./logTimers.js");
+const sendMessage = require("./sendMessage.js");
+const normalizeAndSplit = require("./textUtils.js");
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
 fastify.register(cors);
@@ -17,21 +19,22 @@ fastify.register(require("@fastify/static"), {
   root: path.join(__dirname),
 });
 
-let sock;
 const reconnect = () => {
   connectToWhatsApp();
 };
+
 const connectToWhatsApp = async () => {
   const { state: e, saveCreds: s } = await useMultiFileAuthState("session_auth_info");
-  (sock = makeWASocket({
+  (state.sock = makeWASocket({
     printQRInTerminal: !0,
     auth: e,
     logger: log({ level: "silent" }),
   })),
-    sock.ev.on("connection.update", handleConnectionUpdate),
-    sock.ev.on("messages.upsert", handleMessageUpsert),
-    sock.ev.on("creds.update", s);
+    state.sock.ev.on("connection.update", handleConnectionUpdate),
+    state.sock.ev.on("messages.upsert", handleMessageUpsert),
+    state.sock.ev.on("creds.update", s);
 };
+
 const deleteFolder = async (folderPath) => {
   try {
     await fs.access(folderPath);
@@ -45,12 +48,14 @@ const deleteFolder = async (folderPath) => {
     }
   }
 };
+
 const handleDisconnection = async (message) => {
   console.log(message);
   await deleteFolder(path.join(__dirname, "session_auth_info"));
-  sock?.state === "open" && sock.logout();
+  state.sock?.state === "open" && state.sock.logout();
   connectToWhatsApp().catch((err) => console.log("unexpected error: " + err));
 };
+
 const handleConnectionUpdate = async (update) => {
   const { connection, lastDisconnect } = update;
   if (connection === "close") {
@@ -76,20 +81,7 @@ const handleConnectionUpdate = async (update) => {
     console.log("device connected");
   }
 };
-const normalizeAndSplit = (text) => {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[\.,\?¡!¿]/g, "")
-    .split(/\s+/);
-};
-async function logTimers() {
-  const timers = await updateVariables();
-  state.messageTimer = timers.messageTimer;
-  state.messagePerMinute = timers.messagePerMinute;
-}
-logTimers();
+
 const handleMessageUpsert = async ({ messages, type }) => {
   try {
     const message = messages[0];
@@ -113,7 +105,7 @@ const handleMessageUpsert = async ({ messages, type }) => {
           state.lastProductSent[clientNumber] = product.product;
           state.messageInProcess[clientNumber] = false;
           setTimeout(async () => {
-            await sock.sendMessage(clientNumber, { text: city });
+            await state.sock.sendMessage(clientNumber, { text: city });
             state.processing[clientNumber] = false;
           }, 1000);
         }, state.messageTimer * 1000);
@@ -158,19 +150,6 @@ fs.readFile("log.json", "utf8")
     error.code === "ENOENT" ? console.log("No Logs found, starting new.") : console.error("Error reading Logs:", error)
   );
 
-const sendMessage = async (clientNumber, templateAndMedia, logMessage) => {
-  let date = new Date();
-  let options = { timeZone: "America/La_Paz", hour: "2-digit", minute: "2-digit", second: "2-digit" };
-  let formatter = new Intl.DateTimeFormat([], options);
-  let timeString = formatter.format(date);
-  const logData = [++state.count, logMessage, timeString, clientNumber.replace("@s.whatsapp.net", "")];
-  state.logs.push(logData);
-  await fs.writeFile("log.json", JSON.stringify(state.logs, null, 2));
-  console.log(`${logData[0]} / ${logData[1]} / ${logData[2]}`);
-  console.log(logData[3]);
-  const image = { url: templateAndMedia.media };
-  await sock.sendMessage(clientNumber, { image: image, caption: templateAndMedia.template });
-};
+logTimers();
 connectToWhatsApp();
-
 fastify.listen({ port: process.env.PORT || 8080 });

@@ -1,4 +1,5 @@
 let state = {
+  sock: null,
   lastMessages: {},
   count: 0,
   logs: [],
