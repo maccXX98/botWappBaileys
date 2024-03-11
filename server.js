@@ -1,10 +1,10 @@
 const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require("@whiskeysockets/baileys");
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
 const { Boom } = require("@hapi/boom");
 const log = require("pino");
-const fastify = require("fastify")({ logger: true });
-const cors = require("@fastify/cors");
 const fs = require("fs").promises;
-const path = require("path");
 const state = require("./state.js");
 const Product = require("./product.class.js");
 const City = require("./city.class.js");
@@ -14,10 +14,9 @@ const sendMessage = require("./sendMessage.js");
 const normalizeAndSplit = require("./textUtils.js");
 const city = "¿Desde qué ciudad nos escribe? 🇧🇴😁";
 
-fastify.register(cors);
-fastify.register(require("@fastify/static"), {
-  root: path.join(__dirname),
-});
+const app = express();
+app.use(cors());
+app.use(express.static(path.join(__dirname)));
 
 const reconnect = () => {
   connectToWhatsApp();
@@ -152,4 +151,4 @@ fs.readFile("log.json", "utf8")
 
 logTimers();
 connectToWhatsApp();
-fastify.listen({ port: process.env.PORT || 8080 });
+app.listen(process.env.PORT || 8080, () => {});
