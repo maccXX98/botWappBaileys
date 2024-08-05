@@ -33,3 +33,4 @@ testproductsnovex-40c092be4648.json
 
 # Ignorar la carpeta session_auth_info
 /session_auth_info/
+pnpm-lock.yaml
